@@ -1,0 +1,922 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="https://id.signicat.com/definitions/wsdl/Scid-v2" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="ScidService" targetNamespace="https://id.signicat.com/definitions/wsdl/Scid-v2">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://id.signicat.com/definitions/wsdl/Scid-v2" elementFormDefault="qualified" targetNamespace="https://id.signicat.com/definitions/wsdl/Scid-v2" version="1.0">
+
+  <xs:element name="account-exists-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="account-exists-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="exists" type="xs:boolean"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="account-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="result" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="add-device-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element name="device" type="tns:add-device"/>
+        <xs:element minOccurs="0" name="activated" type="xs:boolean"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="approve-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="create-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element name="properties" nillable="true" type="tns:addupd-account-properties"/>
+        <xs:element minOccurs="0" name="activated" type="xs:boolean"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="create-artifact-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="create-artifact-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="artifact" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="delete-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="delete-device-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element name="device_name" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="device-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="status" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-account-activity-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-account-activity-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element minOccurs="0" name="activity-list" type="tns:activity-list"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-account-history-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-account-history-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element minOccurs="0" name="events" type="tns:events"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-account-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="account" type="tns:account"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-devices-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-devices-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="devices" type="tns:devices"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-multiple-accounts-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_references" type="tns:externalReferenceList"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="get-multiple-accounts-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="accounts" type="tns:basicaccounts"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="list-pending-accounts-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="list-pending-accounts-response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="accountnames" type="tns:accountnames"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="lock-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="set-hashed-password-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element name="properties" nillable="true" type="tns:hashed-password-properties"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="set-password-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element name="pwd" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="unlock-account-password-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="unlock-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="update-account-request">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="service" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element minOccurs="0" name="domain" type="xs:string"/>
+        <xs:element name="external_reference" type="xs:string"/>
+        <xs:element name="properties" nillable="true" type="tns:addupd-account-properties"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="activity-list">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="activity" type="tns:activity"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="activity">
+    <xs:sequence>
+      <xs:element name="created" type="xs:dateTime"/>
+      <xs:element name="state" type="xs:int"/>
+      <xs:element name="operation" type="xs:string"/>
+      <xs:element minOccurs="0" name="authentication" type="tns:authentication"/>
+      <xs:element minOccurs="0" name="activity-attributes" type="tns:activity-attributes"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="authentication">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="authentication-method" type="tns:authentication-method"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="authentication-method">
+    <xs:sequence>
+      <xs:element name="attribute">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="activity-attributes">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="activity-attribute" type="tns:activity-attribute"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="activity-attribute">
+    <xs:sequence/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+    <xs:attribute name="created" type="xs:dateTime" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="events">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="event" type="tns:event"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="event">
+    <xs:sequence>
+      <xs:element name="event_source" type="xs:string"/>
+      <xs:element name="event_type" type="xs:string"/>
+      <xs:element name="event_message" type="xs:string"/>
+      <xs:element name="created" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="hashed-password-properties">
+    <xs:sequence>
+      <xs:element name="passwordhash" type="xs:string"/>
+      <xs:element name="hashalg" type="xs:string"/>
+      <xs:element minOccurs="0" name="salt" type="xs:string"/>
+      <xs:element minOccurs="0" name="saltatend" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="account">
+    <xs:sequence>
+      <xs:element name="domain" type="xs:string"/>
+      <xs:element name="external_reference" type="xs:string"/>
+      <xs:element name="created" type="xs:dateTime"/>
+      <xs:element name="state" type="xs:string"/>
+      <xs:element name="properties" type="tns:account-properties"/>
+      <xs:element minOccurs="0" name="locked" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="account-properties">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="property" nillable="true" type="tns:account-property"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="account-property">
+    <xs:sequence/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="source" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="add-device">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="addupd-account-properties">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="property" nillable="true" type="tns:addupd-account-property"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="addupd-account-property">
+    <xs:sequence/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="externalReferenceList">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="external_reference" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="basicaccounts">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="account" type="tns:basicaccount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="basicaccount">
+    <xs:sequence>
+      <xs:element name="external_reference" type="xs:string"/>
+      <xs:element name="created" type="xs:dateTime"/>
+      <xs:element name="state" type="xs:string"/>
+      <xs:element minOccurs="0" name="locked" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="devices">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="device" nillable="true" type="tns:device"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="device">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type" type="xs:string"/>
+      <xs:element name="state" type="xs:string"/>
+      <xs:element name="is_preregistered" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="accountnames">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="accountnamestate" nillable="true" type="tns:accountnamestate"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="accountnamestate">
+    <xs:sequence>
+      <xs:element name="external_reference" type="xs:string"/>
+      <xs:element name="state" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getAccountHistory">
+    <wsdl:part element="tns:get-account-history-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAccountResponse">
+    <wsdl:part element="tns:get-account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setPasswordResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="unlockAccountResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="lockAccount">
+    <wsdl:part element="tns:lock-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setHashedPassword">
+    <wsdl:part element="tns:set-hashed-password-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMultipleAccountsResponse">
+    <wsdl:part element="tns:get-multiple-accounts-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="addDeviceResponse">
+    <wsdl:part element="tns:device-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="addDevice">
+    <wsdl:part element="tns:add-device-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="approveAccountResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="accountExists">
+    <wsdl:part element="tns:account-exists-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteDeviceResponse">
+    <wsdl:part element="tns:device-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createAccount">
+    <wsdl:part element="tns:create-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setHashedPasswordResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteDevice">
+    <wsdl:part element="tns:delete-device-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getDevices">
+    <wsdl:part element="tns:get-devices-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="unlockAccount">
+    <wsdl:part element="tns:unlock-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateAccountResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createAccountResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listPendingAccounts">
+    <wsdl:part element="tns:list-pending-accounts-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="unlockAccountPassword">
+    <wsdl:part element="tns:unlock-account-password-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAccountActivity">
+    <wsdl:part element="tns:get-account-activity-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listPendingAccountsResponse">
+    <wsdl:part element="tns:list-pending-accounts-response" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteAccount">
+    <wsdl:part element="tns:delete-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAccountActivityResponse">
+    <wsdl:part element="tns:get-account-activity-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getDevicesResponse">
+    <wsdl:part element="tns:get-devices-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAccountHistoryResponse">
+    <wsdl:part element="tns:get-account-history-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getAccount">
+    <wsdl:part element="tns:get-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="approveAccount">
+    <wsdl:part element="tns:approve-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createArtifact">
+    <wsdl:part element="tns:create-artifact-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="unlockAccountPasswordResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="createArtifactResponse">
+    <wsdl:part element="tns:create-artifact-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateAccount">
+    <wsdl:part element="tns:update-account-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMultipleAccounts">
+    <wsdl:part element="tns:get-multiple-accounts-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="accountExistsResponse">
+    <wsdl:part element="tns:account-exists-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="lockAccountResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="deleteAccountResponse">
+    <wsdl:part element="tns:account-response" name="response">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="setPassword">
+    <wsdl:part element="tns:set-password-request" name="request">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ScidEndPoint">
+    <wsdl:operation name="getAccountActivity">
+      <wsdl:input message="tns:getAccountActivity" name="getAccountActivity">
+    </wsdl:input>
+      <wsdl:output message="tns:getAccountActivityResponse" name="getAccountActivityResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccountHistory">
+      <wsdl:input message="tns:getAccountHistory" name="getAccountHistory">
+    </wsdl:input>
+      <wsdl:output message="tns:getAccountHistoryResponse" name="getAccountHistoryResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteAccount">
+      <wsdl:input message="tns:deleteAccount" name="deleteAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:deleteAccountResponse" name="deleteAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="lockAccount">
+      <wsdl:input message="tns:lockAccount" name="lockAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:lockAccountResponse" name="lockAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setHashedPassword">
+      <wsdl:input message="tns:setHashedPassword" name="setHashedPassword">
+    </wsdl:input>
+      <wsdl:output message="tns:setHashedPasswordResponse" name="setHashedPasswordResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccount">
+      <wsdl:input message="tns:getAccount" name="getAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:getAccountResponse" name="getAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addDevice">
+      <wsdl:input message="tns:addDevice" name="addDevice">
+    </wsdl:input>
+      <wsdl:output message="tns:addDeviceResponse" name="addDeviceResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="approveAccount">
+      <wsdl:input message="tns:approveAccount" name="approveAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:approveAccountResponse" name="approveAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createArtifact">
+      <wsdl:input message="tns:createArtifact" name="createArtifact">
+    </wsdl:input>
+      <wsdl:output message="tns:createArtifactResponse" name="createArtifactResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="accountExists">
+      <wsdl:input message="tns:accountExists" name="accountExists">
+    </wsdl:input>
+      <wsdl:output message="tns:accountExistsResponse" name="accountExistsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateAccount">
+      <wsdl:input message="tns:updateAccount" name="updateAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:updateAccountResponse" name="updateAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createAccount">
+      <wsdl:input message="tns:createAccount" name="createAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:createAccountResponse" name="createAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteDevice">
+      <wsdl:input message="tns:deleteDevice" name="deleteDevice">
+    </wsdl:input>
+      <wsdl:output message="tns:deleteDeviceResponse" name="deleteDeviceResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getMultipleAccounts">
+      <wsdl:input message="tns:getMultipleAccounts" name="getMultipleAccounts">
+    </wsdl:input>
+      <wsdl:output message="tns:getMultipleAccountsResponse" name="getMultipleAccountsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDevices">
+      <wsdl:input message="tns:getDevices" name="getDevices">
+    </wsdl:input>
+      <wsdl:output message="tns:getDevicesResponse" name="getDevicesResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlockAccount">
+      <wsdl:input message="tns:unlockAccount" name="unlockAccount">
+    </wsdl:input>
+      <wsdl:output message="tns:unlockAccountResponse" name="unlockAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="listPendingAccounts">
+      <wsdl:input message="tns:listPendingAccounts" name="listPendingAccounts">
+    </wsdl:input>
+      <wsdl:output message="tns:listPendingAccountsResponse" name="listPendingAccountsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setPassword">
+      <wsdl:input message="tns:setPassword" name="setPassword">
+    </wsdl:input>
+      <wsdl:output message="tns:setPasswordResponse" name="setPasswordResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlockAccountPassword">
+      <wsdl:input message="tns:unlockAccountPassword" name="unlockAccountPassword">
+    </wsdl:input>
+      <wsdl:output message="tns:unlockAccountPasswordResponse" name="unlockAccountPasswordResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ScidServiceSoapBinding" type="tns:ScidEndPoint">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getAccountHistory">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getAccountHistory">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getAccountHistoryResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccountActivity">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getAccountActivity">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getAccountActivityResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="lockAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="lockAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="lockAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setHashedPassword">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setHashedPassword">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setHashedPasswordResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addDevice">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="addDevice">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="addDeviceResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="approveAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="approveAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="approveAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createArtifact">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createArtifact">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createArtifactResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="accountExists">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="accountExists">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="accountExistsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="updateAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="createAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="createAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="createAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="deleteDevice">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteDevice">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteDeviceResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getMultipleAccounts">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getMultipleAccounts">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getMultipleAccountsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getDevices">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getDevices">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getDevicesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlockAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="unlockAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="unlockAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="listPendingAccounts">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="listPendingAccounts">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="listPendingAccountsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setPassword">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="setPassword">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="setPasswordResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="unlockAccountPassword">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="unlockAccountPassword">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="unlockAccountPasswordResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ScidService">
+    <wsdl:port binding="tns:ScidServiceSoapBinding" name="ScidServiceEndPointPort">
+      <soap:address location="https://preprod.signicat.com/ws/scid-v2"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

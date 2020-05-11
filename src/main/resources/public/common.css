@@ -1,0 +1,59 @@
+
+body {
+	background-color:#dee4e6;
+	width:720px;
+	font-family: "Helvetica", "Times New Roman", Times, serif;
+	font-size:14px;
+	margin-left: 20px;
+	color:#253942;
+}
+
+textarea {
+  font-family: inherit;
+  font-size: 12px;
+  width:100%;
+}
+
+input {
+  font-family: inherit;
+  font-size: 12px;
+}
+
+table {
+	width:100%;
+	margin-bottom:10px;
+}
+
+label {
+  display: inline-block;
+  width: 140px;
+  font-weight: bold;
+}
+.title {
+	font-size:18px;
+}
+
+.info {
+	background-color:#e8e1ca;
+	border-width:1px;
+	border-color:gray;
+	border-style:solid;
+	padding:10px;
+	margin-bottom: 10px;
+}
+.infoul {
+	padding:0px 10px 0px 0px;
+}
+
+button {
+	background-color:#e8ddbb;
+}
+.dobutton {
+	width:160px;
+	height:30px;
+}
+.infobutton {
+	width:30px;
+	height:20px;
+}
+

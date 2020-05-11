@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title>Signicat MobileID Integration </title>
+    <link rel="stylesheet" type="text/css" href="common.css">
+</head>
+<body>
+
+<h1>MobileID Sample: Web to Merchant App Integration</h1>
+<hr>
+
+<h2>Authentication</h2>
+<hr>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">1 - Enter the externalRef of the user you want to authenticate</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="toggleEnterExtRef()"> ... </button></td>
+</tr></table>
+<div id="show_hide_basic_info" class="info infoul">
+	<ul><li>The 'last used' externalRef is suggested</li></ul>
+</div>
+<div>
+  	<label>External reference:</label>
+   	<input id="externalRef" type='text' size="15" value=""/>
+</div>
+<br>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">2 - Click the 'Get available devices' button</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="toggleGetDevices()"> ... </button></td>
+</tr></table>
+<div id="show_hide_get_devices" class="info infoul">
+	<ul>
+		<li>The client sends the request to the sample backend (getDevices) along with the externalRef
+		<li>The sample backend fetches all devices (of type MOBILEID) that are registered for the chosen externalRef</li>
+		<ul><li>SOAP request <i>getDevices</i> to Signicat</li></ul>
+		<li>The list of device names is displayed in the list below
+	</ul>
+</div>
+<button class="dobutton" type="button" onclick="getDevices()">Get available devices</button>
+<p>
+    <strong>Available devices</strong><br>
+    <select id="devices" size="5" style="width:300px;"></select>
+</p>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">3 - Select an authentication device and click the 'Authenticate' button</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="toggleSelectDevice()"> ... </button></td>
+</tr></table>
+
+<div id="show_hide_select_device" class="info infoul">
+	<ul>
+		<li>The client sends the authentication request to the sample backend (startAuthentication)</li>
+		<li>Sample backend
+		<ul>
+			<li>Obtains <i>deviceId</i> for the selected device name</li>
+			<li>Collects all necessary data and generates authorizationUrl</li>
+			<li>Initiates authorization code grant flow toward Signicat</li>
+        		<li>Sends response back to the client (with <i>statusUrl</i> and <i>completeUrl</i> links)</li>
+		</ul>
+	</ul>
+</div>
+
+<div>
+	<input type="checkbox" id="authContextCheck" name="authContextCheck" value="authContextCheckSelected">
+	<label for="authContextCheck"> Use context msg: </label>
+	<input id="authContextMsg" type='text' size="50" value=""/>
+</div>
+<br>
+
+<button  class="dobutton" type="button" onclick="startAuthentication()">Authenticate</button>
+<br><br>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">4 - PUSH message arrives on mobile device. Carry out authentication</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="togglePushInfo()"> ... </button></td>
+</tr></table>
+<div id="show_hide_push_info" class="info infoul">
+	<ul >
+	    <li>The client executes polling calls to the sample backend's <i>/authenticate/checkStatus</i> endpoint</li>
+		<ul><li>The sample backend uses the received <i>statusUrl</i> and executes a call to Signicat</ul>
+		<li>When authentication is fulfilled, the client calls the sample backend's <i>/authenticate/doComplete</i> endpoint
+		<ul><li>The sample backend executes a call to the <i>completeUrl</i></li></ul>
+		<li>Signicat answers with the <i>authorizationCode</i> to the <i>redirect_uri</i>.
+		<li>The sample backend carries out regular token exchange and fetches <i>userinfo</i></li>
+		<li>The result is shown in the field below</li>
+	</ul>
+</div>
+<p>
+   <strong>Authentication response</strong><br>
+  	<textarea id="authenticateCompleteResponse" rows = "19"></textarea>
+</p>
+<br>
+
+<!--  -->
+<a href="register.html" class="button">Device registration</a>
+<br>
+<br>
+<a href="index.html" class="button">Home</a>
+
+<script src="js/common.js"></script>
+
+<script>
+
+	const toggleEnterExtRef = function() {
+		toggle("show_hide_basic_info");
+	}
+
+	const toggleGetDevices = function() {
+		toggle("show_hide_get_devices")
+	}
+
+	const toggleSelectDevice = function() {
+		toggle("show_hide_select_device")
+	}
+
+	const togglePushInfo = function() {
+		toggle("show_hide_push_info")
+	}
+
+	// handle preContextTitleCheckbox events
+	var preContextTitleCheckbox = document.querySelector("input[name=authContextCheck]");
+	preContextTitleCheckbox.addEventListener( 'change', function() {
+		if(this.checked) {
+			// show authContextMsg
+			document.getElementById("authContextMsg").style.display = '';
+		} else {
+			// hide authContextMsg
+			document.getElementById("authContextMsg").style.display = 'none';
+		}
+	});
+
+	// --- Init
+	const init = async function() {
+	    const initResponse = await fetch(window.location.origin+'/web/authenticate/init')  ;
+	    if (initResponse.ok) {
+	        const extref = await initResponse.text();
+	        document.getElementById("externalRef").value = extref;
+	    } else {
+	        throw Error(initResponse.statusText);
+	    }
+	}
+
+	// --- Authentication
+	const startAuthentication = async function() {
+		var u = document.getElementById("devices").value;
+		var authUrl = window.location.origin+'/web/authenticate/start?deviceName=' + u;
+		var sendContext = preContextTitleCheckbox.checked;
+
+		if(sendContext){
+			var contextMsg = document.getElementById("authContextMsg").value;
+			var contextMsgBase64 = btoa(contextMsg);
+			authUrl = authUrl + '&preContextTitle=' + contextMsgBase64;
+		}
+	    // const authResponse = await fetch(window.location.origin+'/authenticate/start?deviceName=' + u)  ;
+		const authResponse = await fetch(authUrl)  ;
+	    if (authResponse.ok) {
+	        setTimeout(function() {loopCheckStatus("authenticate");}, 3000);
+	    } else {
+	    	 const resText = await authResponse.text();
+        	 reportError("authenticate", JSON.stringify(JSON.parse(resText), null, 2))
+	    }
+	}
+
+	const getDevices = async function() {
+		let extRef = document.getElementById("externalRef").value
+	    const devicesResponse = await fetch(window.location.origin+'/web/authenticate/getDevices?externalRef='+ extRef )  ;
+	    if (devicesResponse.ok) {
+	    	const jsonObject = await devicesResponse.json();
+	    	var ul = document.getElementById("devices");
+	    	for( var i = 0; i < jsonObject.length; i++ )
+	    	{
+	    	    var li = document.createElement("option");
+	    	    li.appendChild(document.createTextNode(jsonObject[i]));
+	    	    ul.appendChild(li);
+	    	}
+	    } else {
+	    	 const resText = await devicesResponse.text();
+         	 reportError("authenticate", resText)
+	    }
+	}
+
+	hide("show_hide_basic_info");
+	hide("show_hide_get_devices");
+	hide("show_hide_select_device");
+	hide("show_hide_push_info");
+	init();
+
+</script>
+
+</body>
+</html>

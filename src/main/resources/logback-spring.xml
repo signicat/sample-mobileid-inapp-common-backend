@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="ConsoleAppender"
+    class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{ISO8601, UTC}Z [%thread] %highlight(%-5level) %logger{36} - %msg %X%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <appender name="DemoAppender"
+    class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{ISO8601, UTC}Z - %msg %X%n
+      </pattern>
+    </encoder>
+  </appender>
+  
+  <logger name="org.springframework" level="INFO"/>
+  
+  <logger name="com.signicat.demo" level="info" additivity="false">
+      <appender-ref ref="DemoAppender"/>
+  </logger>
+  
+
+  <springProfile name="default">
+    <root level="info">
+      <appender-ref ref="ConsoleAppender" />
+    </root>
+  </springProfile>
+  
+  <springProfile name="development">
+    <root level="info">
+      <appender-ref ref="ConsoleAppender" />
+    </root>
+  </springProfile>
+   
+  <springProfile name="beta">
+    <root level="info">
+      <appender-ref ref="ConsoleAppender" />
+    </root>
+  </springProfile>
+
+</configuration>

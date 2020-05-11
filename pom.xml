@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.0.RELEASE</version>
+  </parent>
+
+  <groupId>com.signicat.samples</groupId>
+  <artifactId>sample-mobileid-inapp-common-backend</artifactId>
+  <version>1.0.3-SNAPSHOT</version>
+
+  <name>Sample MobileID InApp Backend</name>
+  <description>Sample MobileID InApp Backend</description>
+
+  <organization>
+    <name>Signicat AS</name>
+    <url>https://www.signicat.com</url>
+  </organization>
+
+  <scm>
+    <connection>scm:git:ssh://git@git.signicat.net/demo/sample-mobileid-inapp-common-backend.git</connection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
+    <start-class>com.signicat.demo.sampleapp.inapp.Application</start-class>
+  </properties>
+
+
+  <distributionManagement>
+    <repository>
+      <id>nexus-releases</id>
+      <name>Signicat internal release repository</name>
+      <url>http://nexus.signicat.net/nexus/content/repositories/releases/</url>
+      <layout>default</layout>
+    </repository>
+    <snapshotRepository>
+      <id>nexus-snapshots</id>
+      <name>Signicat internal snapshot repository</name>
+      <url>http://nexus.signicat.net/nexus/content/repositories/snapshots/</url>
+      <layout>default</layout>
+    </snapshotRepository>
+  </distributionManagement>
+
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+    </dependency>
+	<dependency>
+	    <groupId>org.glassfish.jaxb</groupId>
+	    <artifactId>jaxb-runtime</artifactId>
+	    <scope>runtime</scope>
+	</dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web-services</artifactId>
+    </dependency>
+  </dependencies>
+
+  <!-- No common repositories should be defined in pom's.  -->
+  <!-- All repositories must be defined in Nexus.  -->
+  <!-- https://nexus.signicat.net -->
+  <!-- See this confluence page for configuring your local settings.xml to use Nexus -->
+  <!-- https://confluence.signicat.net/display/DEV/Maven -->
+  <repositories />
+  <pluginRepositories />
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring-boot.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+              <finalName>${project.artifactId}</finalName>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <fork>true</fork>
+          <executable>true</executable>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.14.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generatePackage>com.signicat.generated.scid</generatePackage>
+          <generateDirectory>${project.basedir}/target/generated-sources</generateDirectory>
+          <schemaDirectory>${project.basedir}/src/main/resources/wsdl</schemaDirectory>
+          <schemaIncludes>
+            <include>*.wsdl</include>
+          </schemaIncludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

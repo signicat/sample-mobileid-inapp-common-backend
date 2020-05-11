@@ -1,0 +1,54 @@
+info:
+  app:
+    name: Sample InApp Server
+    version: 1.0.0
+
+security:
+  require-ssl: false
+
+server:
+  port: 8089
+  url: "http://localhost:8089"
+  servlet:
+    session:
+      timeout: 300
+    context-path: ""
+  compression:
+    enabled: true
+
+spring:
+  devtools:
+    livereload:
+      enabled: false
+
+# TODO: Change to YOUR sample user and device name
+sample:
+  externalRef: "sampleUser"
+  deviceName: "sampleDeviceName"
+
+oidc:
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  oidcBase: "https://beta.signicat.com/oidc/"
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  clientId: "beta.signicat.sampleapp"
+  scope: "openid+profile+mobileid"
+# TODO!: Change redirect_uri
+# Note! This redirect_uri has to be configured on Signicat side
+  redirectUri: "http://<Customer_Callback_Server_IP>:<PORT as specified above server:port>/consumeOidc"
+  acrValues: "urn:signicat:oidc:method:"
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  regMethod: "mobileid-inapp-web-reg"
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  authMethod: "mobileid-inapp-web-auth"
+# TODO!: Set the proper value
+  cred64: "Get it from Signicat"
+  
+ws:
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  scidWsUrl: "https://beta.signicat.com/ws/scid-v2"
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  service: "signicat"
+  domain: "default"
+# TODO!: Set the proper value
+  apiKey: "Get it from Signicat"
+

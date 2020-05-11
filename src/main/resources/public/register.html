@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title>Signicat MobileID Integration </title>
+    <link rel="stylesheet" type="text/css" href="common.css">
+</head>
+<body>
+
+<h1>MobileID Sample: Web to Merchant App Integration</h1>
+<hr>
+
+<h2>Registration</h2>
+<hr>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">1 - Enter the externalRef and deviceName</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="toggleBeforeRegistrationInfo()"> ... </button></td>
+</tr></table>
+<div class="info" id="show_hide_before_registration">
+   	Normally, in order to carry out device registration, the user must already be authenticated by the merchant backend<br>
+    Obtaining the externalRef and deviceName is done by the merchant backend<br>
+    However, for this particular sample, we make it possible to configure these parameters here.
+    <br>
+    <br>
+    <div>
+       	Note: The default externalRef and deviceName are configured in the application.yaml file.
+    </div>
+</div>
+<div>
+   	<label>External reference:</label>
+  	<input id="externalRef" type='text' size="15" value=""/>
+  	<br>
+   	<label>Device name:</label>
+   	<input id="deviceName" type='text' size="15" value=""/>
+</div>
+<br>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">2 - Click the 'Register device' button</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="toggleRegisterDeviceInfo()"> ... </button></td>
+</tr></table>
+
+<div class="info infoul" id="show_hide_register_device">
+	<ul>
+		<li>The client sends the registration request to the sample backend (startRegistration)</li>
+			<ul>
+			<li>Note: The configured externalRef and deviceName are sent in the request, while, as explained above, this would normally not be a case</li>
+			</ul>
+		<li>Sample backend
+		<ul>
+			<li>Collects all necessary data and generates authorizationUrl</li>
+			<li>Initiates authorization code grant flow toward Signicat</li>
+			<li>Sends response back to the client</li>
+			<ul>
+				<li><i>activationCode</i> (displayed in the text field below)</li>
+				<li><i>statusUrl</i> and <i>completeUrl</i> links</li>
+			</ul>
+		</ul>
+	</ul>
+</div>
+<button class="dobutton" type="button" onclick="startRegistration()">Register device</button>
+<p>
+    <label>Activation code:</label>
+    <input id="activationCode" type='text' size="15" placeholder="Received code" /></strong>
+</p>
+<br>
+
+<!--  -->
+<table><tr>
+	<td><strong class="title">3 - Use mobile app and <i>activationCode</i> to register your device</strong></td>
+	<td width="30px"><button class="infobutton" type="button" onclick="toggleUseAppInfo()"> ... </button></td>
+</tr></table>
+
+<div id="show_hide_use_app" class="info infoul">
+	<ul>
+	    <li>The client executes polling calls to the sample backend's <i>/register/checkStatus</i> endpoint</li>
+		<ul><li>The sample backend uses the received <i>statusUrl</i> and executes a call to Signicat</ul>
+		<li>When registration is fulfilled, the client calls the sample backend's <i>/register/doComplete</i> endpoint
+		<ul><li>The sample backend executes a call to the <i>completeUrl</i></li></ul>
+		<li>Signicat answers with the <i>authorizationCode</i> to the <i>redirect_uri</i>.
+		<li>The sample backend carries out regular token exchange and fetches <i>userinfo</i></li>
+		<li>The result is shown in the field below</li>
+	</ul>
+</div>
+<div>
+    <strong>Registration response</strong>
+    <br>
+   	<textarea id="registerCompleteResponse" rows="9"></textarea>
+</div>
+<br>
+
+<!--  -->
+<a href="authenticate.html" class="button">Authentication</a>
+<br>
+<br>
+<a href="index.html" class="button">Home</a>
+
+<script src="js/common.js"></script>
+
+<script>
+
+	const toggleBeforeRegistrationInfo = function() {
+		toggle("show_hide_before_registration");
+	}
+
+	const toggleRegisterDeviceInfo = function() {
+		toggle("show_hide_register_device")
+	}
+
+	const toggleUseAppInfo = function() {
+		toggle("show_hide_use_app")
+	}
+
+	// --- Init
+	const init = async function() {
+	    const initResponse = await fetch(window.location.origin+'/web/register/init')  ;
+	    if (initResponse.ok) {
+	        const jsonObject = await initResponse.json();
+	        document.getElementById("externalRef").value = jsonObject.externalRef;
+	        document.getElementById("deviceName").value = jsonObject.deviceName;
+	    } else {
+	        throw Error(initResponse.statusText);
+	    }
+	}
+
+	// --- Registration
+	const startRegistration = async function() {
+		let extRef = document.getElementById("externalRef").value
+		let devName = document.getElementById("deviceName").value
+	    const regResponse = await fetch(window.location.origin+'/web/register/start?externalRef='+ extRef + '&deviceName=' + devName);
+		const resText = await regResponse.text();
+	    if (regResponse.ok) {
+	        document.getElementById("activationCode").value = resText;
+	        setTimeout(function() {loopCheckStatus("register");}, 3000);
+	    }
+ 	    else {
+ 	    	 reportError("register", resText)
+	    }
+	}
+
+	hide("show_hide_before_registration");
+	hide("show_hide_register_device");
+	hide("show_hide_use_app");
+	init();
+
+</script>
+
+</body>
+</html>
