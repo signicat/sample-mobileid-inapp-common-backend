@@ -21,7 +21,7 @@
   </organization>
 
   <scm>
-    <connection>scm:git:ssh://git@git.signicat.net/demo/sample-mobileid-inapp-common-backend.git</connection>
+    <connection>scm:git:git@gitlab.com:signicat/mobileid/demos/sample-mobileid-inapp-common-backend.git</connection>
     <tag>HEAD</tag>
   </scm>
 
