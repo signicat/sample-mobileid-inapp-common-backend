@@ -24,12 +24,12 @@ import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
 import com.signicat.demo.sampleapp.inapp.common.StateCache;
 import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationData;
+import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
 import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
-import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
-import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
+import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
 import com.signicat.generated.scid.Device;
 import com.signicat.generated.scid.Devices;
 import com.signicat.generated.scid.GetDevicesResponse;
@@ -86,6 +86,7 @@ public class WebAuthenticateController {
 
     @GetMapping("/start")
     public void startAuthentication(
+            @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             final HttpServletRequest request, final HttpServletResponse response) {
@@ -97,7 +98,7 @@ public class WebAuthenticateController {
             preContextTitleB64decoded = new String(Base64.getDecoder().decode(preContextTitle));
         }
 
-        final AuthenticationData serverData = prepareAuthenticationData(sessionData.getExtRef(), deviceId, preContextTitleB64decoded);
+        final AuthenticationData serverData = prepareAuthenticationData(extRef, deviceId, preContextTitleB64decoded);
         final String authorizeUrl = OIDCUtils.getAuthorizeUri(serverData);
         LOG.info("AUTHORIZE URL:" + authorizeUrl);
 
@@ -134,7 +135,7 @@ public class WebAuthenticateController {
                 HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString()));
     }
 
-    private AuthenticationData prepareAuthenticationData(final String extRef, final String devId, String preContextTitle) {
+    private AuthenticationData prepareAuthenticationData(final String extRef, final String devId, final String preContextTitle) {
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + oidcProperties.getAcrValues() + oidcProperties.getAuthMethod());
 
         return new AuthenticationData(oidcProperties.getOidcBase() + WebAppUtils.AUTHORIZE_RESPONSE_TYPE_CODE, oidcProperties.getClientId(),

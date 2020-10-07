@@ -135,10 +135,12 @@ export default {
     },
     startAuthentication : async function() {
       let self = this;
+      let extRef = this.externalRef
       let servicePath = this.servicePath
       let u = this.selected
-      let authUrl = '/mobileid-inapp' + servicePath + '/authenticate/start?deviceName=' + u;
-
+      let authUrl = '/mobileid-inapp' + servicePath + '/authenticate/start?externalRef='+ extRef +
+          '&deviceName='
+          + u;
       const authResponse = await fetch(authUrl)  ;
       if (authResponse.ok) {
         setTimeout(function() {self.loopCheckStatus(servicePath, "/authenticate");}, 3000);
@@ -155,6 +157,8 @@ export default {
           '/authenticate/getDevices?externalRef='+ extRef )  ;
       if (devicesResponse.ok) {
         const jsonObject = await devicesResponse.json()
+        // --- Clean previously listed devices
+        this.deviceList = [];
         for( var i = 0; i < jsonObject.length; i++ ) {
           this.deviceList.push({ index: i, value: jsonObject[i]})
         }
