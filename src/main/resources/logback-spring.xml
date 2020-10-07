@@ -17,26 +17,26 @@
       </pattern>
     </encoder>
   </appender>
-  
+
   <logger name="org.springframework" level="INFO"/>
-  
+
   <logger name="com.signicat.demo" level="info" additivity="false">
       <appender-ref ref="DemoAppender"/>
   </logger>
-  
+
 
   <springProfile name="default">
     <root level="info">
       <appender-ref ref="ConsoleAppender" />
     </root>
   </springProfile>
-  
+
   <springProfile name="development">
     <root level="info">
       <appender-ref ref="ConsoleAppender" />
     </root>
   </springProfile>
-   
+
   <springProfile name="beta">
     <root level="info">
       <appender-ref ref="ConsoleAppender" />

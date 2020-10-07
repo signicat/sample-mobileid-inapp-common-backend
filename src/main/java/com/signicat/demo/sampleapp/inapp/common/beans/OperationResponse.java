@@ -50,5 +50,4 @@ public class OperationResponse {
     public void setError(final OIDCErrorResponse error) {
         this.error = error;
     }
-
 }

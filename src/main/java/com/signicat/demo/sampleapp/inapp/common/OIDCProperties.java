@@ -15,6 +15,7 @@ public class OIDCProperties {
     private String cred64;
     private String regMethod;
     private String authMethod;
+    private String consentSignMethod;
 
     public OIDCProperties() {}
 
@@ -103,4 +104,8 @@ public class OIDCProperties {
     public void setAuthMethod(final String authMethod) {
         this.authMethod = authMethod;
     }
+
+    public String getConsentSignMethod() { return consentSignMethod; }
+
+    public void setConsentSignMethod(String consentSignMethod) { this.consentSignMethod = consentSignMethod; }
 }

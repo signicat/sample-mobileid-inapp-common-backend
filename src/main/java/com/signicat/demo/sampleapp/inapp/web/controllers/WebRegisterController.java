@@ -121,8 +121,10 @@ public class WebRegisterController {
 
     private RegistrationData prepareRegistrationData(final String extRef, final String devName) {
         // --- Generate Artifact
+        LOG.info("Generate Artifact...");
         final String artifact = createArtifact(extRef);
 
+        LOG.info("Artifact created..."+artifact);
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + oidcProperties.getAcrValues() + oidcProperties.getRegMethod());
 
         return new RegistrationData(oidcProperties.getOidcBase() + WebAppUtils.AUTHORIZE_RESPONSE_TYPE_CODE, oidcProperties.getClientId(),

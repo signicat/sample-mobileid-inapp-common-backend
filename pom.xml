@@ -10,7 +10,7 @@
 
   <groupId>com.signicat.samples</groupId>
   <artifactId>sample-mobileid-inapp-common-backend</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.6-SNAPSHOT</version>
 
   <name>Sample MobileID InApp Backend</name>
   <description>Sample MobileID InApp Backend</description>
@@ -28,6 +28,7 @@
   <properties>
     <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
     <start-class>com.signicat.demo.sampleapp.inapp.Application</start-class>
+    <frontend-maven-plugin.version>1.10.0</frontend-maven-plugin.version>
   </properties>
 
 
@@ -103,6 +104,27 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web-services</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <version>7.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>spring-boot-starter-logging</artifactId>
+          <groupId>org.springframework.boot</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>
+
   </dependencies>
 
   <!-- No common repositories should be defined in pom's.  -->
@@ -115,6 +137,83 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>${frontend-maven-plugin.version}</version>
+        <configuration>
+          <installDirectory>src/frontend</installDirectory>
+          <workingDirectory>src/frontend</workingDirectory>
+        </configuration>
+        <executions>
+          <!-- Install our node and npm version to run npm/node scripts-->
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>v10.10.0</nodeVersion>
+              <npmVersion>6.9.0</npmVersion>
+            </configuration>
+          </execution>
+          <!-- Install all project dependencies -->
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <!-- optional: default phase is "generate-resources" -->
+            <phase>generate-resources</phase>
+            <!-- Optional configuration which provides for running any npm command -->
+            <configuration>
+              <arguments>install --save vue-router</arguments>
+            </configuration>
+          </execution>
+          <!-- Build and minify static files -->
+          <execution>
+            <id>npm run build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run build</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy Vue.js frontend content</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>src/main/resources/public</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/src/frontend/dist</directory>
+                  <includes>
+                    <include>favicon.ico</include>
+                    <include>index.html</include>
+                    <include>signicat-logo-black.svg</include>
+                    <include>background-image/</include>
+                    <include>css/</include>
+                    <include>fonts/</include>
+                    <include>icons/</include>
+                    <include>img/</include>
+                    <include>js/</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

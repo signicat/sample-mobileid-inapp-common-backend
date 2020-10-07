@@ -3,6 +3,8 @@ package com.signicat.demo.sampleapp.inapp.common.wsclient;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.beans.ScidProperty;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.beans.ScidRequest;
 import com.signicat.generated.scid.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 
@@ -19,6 +21,8 @@ public class ScidWsClient extends WebServiceGatewaySupport {
 
     @Value("${ws.domain}")
     protected String domain;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ScidWsClient.class);
 
     public Object createAccount(final ScidRequest scidRequest) {
         final ObjectFactory objectFactory = new ObjectFactory();
@@ -53,6 +57,7 @@ public class ScidWsClient extends WebServiceGatewaySupport {
             request.setPassword(apiKey);
             request.setDomain(domain);
             request.setExternalReference(accountName);
+            LOG.info("Checking if account exists for:" + accountName + " against " +scidWsUrl + " with service/domain " + serviceName + "/" +domain);
             final GetAccountResponse response = (GetAccountResponse) getWebServiceTemplate().marshalSendAndReceive(scidWsUrl, request);
             if (response.getAccount() != null && response.getAccount().getExternalReference().equals(accountName)) {
                 return true;

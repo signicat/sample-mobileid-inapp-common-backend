@@ -40,9 +40,11 @@ oidc:
   regMethod: "mobileid-inapp-web-reg"
 # ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
   authMethod: "mobileid-inapp-web-auth"
+# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
+  consentSignMethod: "mobileid-inapp-web-sign"
 # TODO!: Set the proper value
   cred64: "Get it from Signicat"
-  
+
 ws:
 # ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
   scidWsUrl: "https://beta.signicat.com/ws/scid-v2"
@@ -52,3 +54,7 @@ ws:
 # TODO!: Set the proper value
   apiKey: "Get it from Signicat"
 
+microservice:
+# ENVIRONMENT-SPECIFIC: Change if you want to target another environment. Contact Signicat for the relevant value.
+  baseUrl: "http://mobileidsrv.dev.signicat.com/"
+  contextPath: "mobileidsrv/"

@@ -37,6 +37,9 @@ public class OIDCUtils {
 
     public static final String WEB_CHANNEL                  = "WEB_CHANNEL";
     public static final String INAPP_CHANNEL                = "INAPP_CHANNEL";
+    public static final String SIGN_CHANNEL                = "SIGN_CHANNEL";
+
+    public static final String JWKS_PATH                = "jwks.json";
 
     public static String createState(final String base) {
         return base + STATE_DELIM + getRandomChars(STATE_NUM_CHARS, STATE_CHOICES);

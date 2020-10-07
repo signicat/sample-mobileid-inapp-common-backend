@@ -1,0 +1,59 @@
+{
+  "_args": [
+    [
+      "@signicat/signicat-css-framework@1.2.4",
+      "/Users/sujsre/dev/frontend/mobileid-demo"
+    ]
+  ],
+  "_from": "@signicat/signicat-css-framework@1.2.4",
+  "_id": "@signicat/signicat-css-framework@1.2.4",
+  "_inBundle": false,
+  "_integrity": "sha1-NqZgadfbe4VQ9em6FyyB9QBnPcc=",
+  "_location": "/@signicat/signicat-css-framework",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "@signicat/signicat-css-framework@1.2.4",
+    "name": "@signicat/signicat-css-framework",
+    "escapedName": "@signicat%2fsignicat-css-framework",
+    "scope": "@signicat",
+    "rawSpec": "1.2.4",
+    "saveSpec": null,
+    "fetchSpec": "1.2.4"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://gitlab.com/api/v4/projects/19463581/packages/npm/@signicat/signicat-css-framework/-/@signicat/signicat-css-framework-1.2.4.tgz",
+  "_spec": "1.2.4",
+  "_where": "/Users/sujsre/dev/frontend/mobileid-demo",
+  "author": {
+    "name": "Signicat AS - Magnus Mauland"
+  },
+  "dependencies": {
+    "grunt-cli": "^1.3.2"
+  },
+  "description": "Signicat CSS framework",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-less": "^1.4.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "material-design-icons-iconfont": "^3.0.3",
+    "normalize.css": "5.0.0"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "license": "MIT",
+  "name": "@signicat/signicat-css-framework",
+  "publishConfig": {
+    "@signicat:registry": "https://gitlab.com/api/v4/projects/19463581/packages/npm/"
+  },
+  "scripts": {
+    "site:build": "grunt",
+    "site:exampleJS": "grunt copy:exampleFilesToDist"
+  },
+  "version": "1.2.4"
+}

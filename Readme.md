@@ -19,15 +19,53 @@ Configuration
 
 Build and execute
 -------------------------------
+
+This project reads an application configuration file (default profile: application.yaml)
+
 In order to use this sample code, first build the project:
 
-        mvn clean install
+        mvn clean package
 
 Then, run it:
     
-        java -jar target/sample-mobileid-inapp-web-backend.jar
+        java -jar target/sample-mobileid-inapp-common-backend.jar
+        
+    or  with 
+    
+        java -jar -Dspring.profiles.active=<profile> target/sample-mobileid-inapp-common-backend.jar
         
 If you have not changed the "port" property in the "server" section of the application.yaml file, the server can be accessed at 
 
-        http://localhost:8089
+        http://localhost:8089/mobileid-inapp
         
+PS : As part of the above build process, our Maven plugins will 
+
+        - Install node/npm in 'src/frontend'
+        - Install node packages
+        - Compile and minify frontend components for production distribution
+        - Copy the frontend components to the 'main/resource/public' directory to launch the application UI on start-up of
+         this Springboot application
+        
+        
+# MobileID Sample App frontend 
+
+## Frontend project setup (You only need these if you want to modify the UI for this project)
+PS : Please go to 'src/frontend' in this project directory 
+
+### Install npm
+```
+npm install
+```
+
+### Compile and hot-reload for development
+```
+npm run serve
+```
+
+### Compile and minify for production
+```
+npm run build
+```
+
+    
+
