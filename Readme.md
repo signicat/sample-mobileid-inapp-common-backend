@@ -1,7 +1,9 @@
 Sample MobileID InApp Backend
 =====================================
 
-This is a simple sample backend to be used with a merchant's mobile app. Registration and authentication start either on the merchant's website or on the merchant's mobile app. The sample backend server uses the OIDC protocol for communication with Signicat.
+This is a simple sample server that demonstrates a possible server integration for use with Signicat's MobileID service. This server is to be used with Signicat's React Native sample app, the source code of which can be downloaded from https://github.com/signicat/sample-mobileid-inapp-common-react-native.
+
+Registration and authentication start either on the merchant's website or on the mobile app. The sample backend server uses the OIDC protocol for communication with Signicat.
 
 
 Configuration
