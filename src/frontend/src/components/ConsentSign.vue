@@ -69,11 +69,16 @@
     </div>
 
     <p>
-      <input type="checkbox" id="authContextCheck" v-model="checked"/>
-      <label for="authContextCheck"> Use context message </label>
-      <input v-model="authContextMsg" type='large-text' value="Enter consent sign text" v-if="checked"/>
+      <label>Consent sign text</label>
+      <input v-model="authContextMsg" type='large-text' value="Enter consent sign text"/>
     </p>
 
+    <p>
+      <input type="checkbox" id="metaDataCheck" v-model="checked"/>
+      <label for="metaDataCheck"> Use metadata </label>
+      <input v-model="metaData" type='large-text' value="Enter metadata" v-if="checked"/>
+    </p>
+    
     <div>
       <button class="button" @click="startSigning">Sign</button>
     </div>
@@ -117,6 +122,7 @@ export default {
       externalRef : "",
       response : "",
       authContextMsg : "",
+      metaData : "",
       checked : false,
       selected: '',
       deviceList: [],
@@ -142,10 +148,13 @@ export default {
       let u = this.selected
       let authUrl = '/mobileid-inapp' + servicePath + '/consentsign/start?deviceName=' + u;
 
+      let contextMsg = this.authContextMsg;
+      let contextMsgBase64 = self.utoa(contextMsg);
+      authUrl = authUrl + '&preContextTitle=' + contextMsgBase64;
+
       if(this.checked){
-        let contextMsg = this.authContextMsg;
-        let contextMsgBase64 = self.utoa(contextMsg);
-        authUrl = authUrl + '&preContextTitle=' + contextMsgBase64;
+        let metaData = this.metaData;
+        authUrl = authUrl + '&preContextContent=' + metaData;
       }
 
       const authResponse = await fetch(authUrl)  ;

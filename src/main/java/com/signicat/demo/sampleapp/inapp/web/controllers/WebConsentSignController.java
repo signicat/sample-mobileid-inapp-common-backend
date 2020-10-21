@@ -100,6 +100,7 @@ public class WebConsentSignController {
     public void startAuthentication(
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
+            @RequestParam(value = "preContextContent", required = false) final String preContextContent,
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: /start ('Sign' button clicked)");
 
@@ -113,7 +114,7 @@ public class WebConsentSignController {
             final String initialState = OIDCUtils.createState(OIDCUtils.SIGN_CHANNEL + getScrValues());
             LOG.info("Sign initialState:" + initialState);
 
-            final String reqData = prepareSignData(sessionData.getExtRef(), deviceId, preContextTitleB64decoded, initialState);
+            final String reqData = prepareSignData(sessionData.getExtRef(), deviceId, preContextTitleB64decoded, preContextContent, initialState);
             LOG.info("reqData:" + reqData);
 
             // make signUrl
@@ -162,7 +163,7 @@ public class WebConsentSignController {
                         HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString()));
     }
 
-    private String prepareSignData(final String extRef, final String devId, final String preContextTitle, final String initialState) throws JOSEException, ParseException {
+    private String prepareSignData(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String initialState) throws JOSEException, ParseException {
         final RSAKey encyptionKey = getSignicatJWK();
 
         final JWEAlgorithm alg = JWEAlgorithm.parse(encyptionKey.getAlgorithm().getName());
@@ -171,7 +172,7 @@ public class WebConsentSignController {
         final JWEHeader header = new JWEHeader.Builder(alg, EncryptionMethod.A256CBC_HS512).keyID(encyptionKey.getKeyID()).build();
 
         // Create a JWEObject with header and JSON payload
-        final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, initialState)));
+        final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, preContextContent, initialState)));
 
         // Create an encrypter with the specified public RSA key
         final RSAEncrypter encrypter = new RSAEncrypter(encyptionKey.toPublicJWK());
@@ -183,13 +184,16 @@ public class WebConsentSignController {
         return jweObject.serialize();
     }
 
-    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String initialState){
+    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String initialState){
 
         final String acr_values = getScrValues();
 
         final List<String> login_hint = new ArrayList<>();
         login_hint.add("externalRef-"+extRef);
         login_hint.add("deviceId-"+devId);
+        if (preContextContent != null) {
+            login_hint.add("metaData-"+preContextContent);
+        }
 
         final JSONObject payload_json = new JSONObject();
         payload_json.put("login_hint", login_hint);
