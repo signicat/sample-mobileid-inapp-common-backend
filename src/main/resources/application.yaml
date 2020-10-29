@@ -54,4 +54,8 @@ ws:
 # Note! This value matches the webservice password for the service.
   apiKey: "Bond007"
 
+# CURRENTLY NOT RELEVANT
+microservice:
+  baseUrl: "<BASE_URL>"
+  contextPath: "<CONTEXT_PATH>/"
 
