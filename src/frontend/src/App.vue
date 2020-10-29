@@ -15,6 +15,7 @@
           <router-link to="/mobileid-inapp/" exact>Disclaimer</router-link>
           <router-link to="/mobileid-inapp/registration">Registration</router-link>
           <router-link to="/mobileid-inapp/authentication">Authentication</router-link>
+          <router-link to="/mobileid-inapp/payment-authorization">Payment Authorization</router-link>
           <router-link to="/mobileid-inapp/consent-sign">Consent Signing</router-link>
         </nav>
       </div>

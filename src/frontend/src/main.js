@@ -4,6 +4,7 @@ import Router from "vue-router";
 import Disclaimer from './components/Disclaimer.vue'
 import Registration from './components/Registration.vue'
 import Authentication from './components/Authentication.vue'
+import PaymentAuthorization from './components/PaymentAuthorization.vue'
 import ConsentSign from './components/ConsentSign.vue'
 
 Vue.use(Router);
@@ -35,6 +36,10 @@ const routes = [
   {
     path: '/mobileid-inapp/authentication',
     component: Authentication
+  },
+  {
+    path: '/mobileid-inapp/payment-authorization',
+    component: PaymentAuthorization
   },
   {
     path: '/mobileid-inapp/consent-sign',

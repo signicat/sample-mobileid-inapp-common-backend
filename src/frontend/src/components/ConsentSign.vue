@@ -40,7 +40,7 @@
     <p>
       <label>Available devices</label>
     </p>
-    <select v-model="selected" class="signicat-select" text="Choose a device to Authenticate">
+    <select v-model="selectedDevice" class="signicat-select" text="Choose a device to Authenticate">
       <option v-for="device in deviceList" v-bind:key="device.index" v-bind:value="device.value">
         {{ device.value }}
       </option>
@@ -124,7 +124,7 @@ export default {
       authContextMsg : "",
       metaData : "",
       checked : false,
-      selected: '',
+      selectedDevice: '',
       deviceList: [],
       servicePath : "/web"
     }
@@ -144,9 +144,12 @@ export default {
     },
     startSigning : async function() {
       let self = this;
+      let extRef = this.externalRef
       let servicePath = this.servicePath
-      let u = this.selected
-      let authUrl = '/mobileid-inapp' + servicePath + '/consentsign/start?deviceName=' + u;
+      let u = this.selectedDevice
+      let authUrl = '/mobileid-inapp' + servicePath + '/consentsign/start?externalRef='+ extRef +
+          '&deviceName='
+          + u;
 
       let contextMsg = this.authContextMsg;
       let contextMsgBase64 = self.utoa(contextMsg);
@@ -176,7 +179,7 @@ export default {
         for( var i = 0; i < jsonObject.length; i++ ) {
           this.deviceList.push({ index: i, value: jsonObject[i]})
         }
-        this.selected = jsonObject[0];
+        this.selectedDevice = jsonObject[0];
       } else {
         const resText = await devicesResponse.text();
         await self.reportError("consentsign", resText)

@@ -58,6 +58,12 @@ public class CallbackController {
 
         final Map<String, String[]> paramsMap = request.getParameterMap();
         LOG.info("paramsMap " + paramsMap.toString());
+        for (final Map.Entry m:paramsMap.entrySet()) {
+            LOG.info("key " + m.getKey());
+            for (final String s:(String[])m.getValue()) {
+                LOG.info("value " + s);
+            }
+                    }
 
         if (paramsMap.containsKey("error")) {
             LOG.error(paramsMap.get("error_description")[0]);

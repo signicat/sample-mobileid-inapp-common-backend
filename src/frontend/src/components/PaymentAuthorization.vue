@@ -52,13 +52,13 @@
     <br>
 
     <h3>
-      <span>3 - Select an authentication device and click the <b>Authenticate</b> button</span>
+      <span>3 - Select an authentication device and click the <b>Authorize</b> button</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the authentication request to the sample backend (startAuthentication)</li>
+        <li>The client sends the authentication request to the sample backend (startPaymentAuthorization)</li>
         <li>Sample backend</li>
           <ul>
             <li>Obtains <code>deviceId</code> for the selected device name</li>
@@ -70,23 +70,28 @@
       </p>
     </div>
 
+    <p>
+      <label>Payment info</label>
+      <input v-model="authContextMsg" type='large-text' value="Enter payment info"/>
+    </p>
+    
     <div>
-      <button class="button" @click="startAuthentication">Authenticate</button>
+      <button class="button" @click="startPaymentAuthorization">Authorize</button>
     </div>
 
     <br>
     <br>
     <h3>
-      <span>4 - Push notification is displayed on mobile device. Carry out authentication</span>
+      <span>4 - Push notification is displayed on mobile device. Carry out authorization</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
       <p>
       <ul >
         <li>The client executes polling calls to the sample backend's
-          <code>/authenticate/checkStatus</code> endpoint</li>
+          <code>/authorizepayment/checkStatus</code> endpoint</li>
       <ul><li>The sample backend uses the received <code>statusUrl</code> and executes a call to Signicat</li></ul>
-      <li>When authentication is fulfilled, the client calls the sample backend's <code>/authenticate/doComplete</code>
+      <li>When authorization is fulfilled, the client calls the sample backend's <code>/authorizepayment/doComplete</code>
         endpoint</li>
           <ul><li>The sample backend executes a call to the <code>completeUrl</code></li></ul>
         <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code>.
@@ -97,9 +102,9 @@
     </div>
 
     <p>
-      <label>Authentication response</label>
+      <label>Payment authorization response</label>
     </p>
-    <textarea v-model="response" id="authenticateCompleteResponse" disabled="disabled"></textarea>
+    <textarea v-model="response" id="authorizepaymentCompleteResponse" disabled="disabled"></textarea>
 
 
   </div>
@@ -107,12 +112,13 @@
 
 <script>
 export default {
-  name: 'Authentication',
+  name: 'PaymentAuthorization',
   data() {
     return {
       deviceId : "",
       externalRef : "",
       response : "",
+      authContextMsg : "",
       selectedDevice: '',
       deviceList: [],
       servicePath : "/web"
@@ -125,27 +131,32 @@ export default {
 
   methods : {
     init : async function() {
-      const initResponse = await fetch('/mobileid-inapp' + this.servicePath +'/authenticate/init')  ;
+      const initResponse = await fetch('/mobileid-inapp' + this.servicePath +'/authorizepayment/init')  ;
       if (initResponse.ok) {
         this.externalRef = await initResponse.text();
       } else {
         throw Error(initResponse.statusText);
       }
     },
-    startAuthentication : async function() {
+    startPaymentAuthorization : async function() {
       let self = this;
       let extRef = this.externalRef
       let servicePath = this.servicePath
       let u = this.selectedDevice
-      let authUrl = '/mobileid-inapp' + servicePath + '/authenticate/start?externalRef='+ extRef +
+      let authUrl = '/mobileid-inapp' + servicePath + '/authorizepayment/start?externalRef='+ extRef +
           '&deviceName='
           + u;
+     
+      let contextMsg = this.authContextMsg;
+      let contextMsgBase64 = self.utoa(contextMsg);
+      authUrl = authUrl + '&preContextTitle=' + contextMsgBase64;   
+             
       const authResponse = await fetch(authUrl)  ;
       if (authResponse.ok) {
-        setTimeout(function() {self.loopCheckStatus(servicePath, "/authenticate");}, 3000);
+        setTimeout(function() {self.loopCheckStatus(servicePath, "/authorizepayment");}, 3000);
       } else {
         const resText = await authResponse.text();
-        await self.reportError("authenticate", JSON.stringify(JSON.parse(resText), null, 2))
+        await self.reportError("authorizepayment", JSON.stringify(JSON.parse(resText), null, 2))
       }
     },
     getDevices : async function() {
@@ -153,7 +164,7 @@ export default {
       let extRef = this.externalRef
       let servicePath = this.servicePath
       const devicesResponse = await fetch('/mobileid-inapp' + servicePath +
-          '/authenticate/getDevices?externalRef='+ extRef )  ;
+          '/authorizepayment/getDevices?externalRef='+ extRef )  ;
       if (devicesResponse.ok) {
         const jsonObject = await devicesResponse.json()
         // --- Clean previously listed devices
@@ -164,7 +175,7 @@ export default {
       this.selectedDevice = jsonObject[0];
       } else {
         const resText = await devicesResponse.text();
-        await self.reportError("authenticate", resText)
+        await self.reportError("authorizepayment", resText)
       }
     },
     loopCheckStatus: async function(servicePath, oper) {

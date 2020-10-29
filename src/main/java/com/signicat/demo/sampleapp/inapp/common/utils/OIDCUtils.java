@@ -1,12 +1,13 @@
 package com.signicat.demo.sampleapp.inapp.common.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
-import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
-import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationData;
-import com.signicat.demo.sampleapp.inapp.common.beans.OperationData;
-import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
-import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -18,13 +19,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
+import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
+import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationData;
+import com.signicat.demo.sampleapp.inapp.common.beans.OperationData;
+import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
+import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 
 public class OIDCUtils {
 
@@ -37,9 +38,9 @@ public class OIDCUtils {
 
     public static final String WEB_CHANNEL                  = "WEB_CHANNEL";
     public static final String INAPP_CHANNEL                = "INAPP_CHANNEL";
-    public static final String SIGN_CHANNEL                = "SIGN_CHANNEL";
+    public static final String SIGN_CHANNEL                 = "SIGN_CHANNEL";
 
-    public static final String JWKS_PATH                = "jwks.json";
+    public static final String JWKS_PATH                    = "jwks.json";
 
     public static String createState(final String base) {
         return base + STATE_DELIM + getRandomChars(STATE_NUM_CHARS, STATE_CHOICES);
@@ -56,6 +57,13 @@ public class OIDCUtils {
         return sb.toString();
     }
 
+    public static String getEncryptedAuthorizeUri(final String baseUrl, final String reqData) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(baseUrl);
+        sb.append("authorize?request=").append(reqData);
+        return sb.toString();
+    }
+
     public static String getAuthorizeUri(final OperationData operationData) {
         final StringBuilder sb = new StringBuilder();
         sb.append(operationData.getAuthorizationCodeFlowBaseUrl());
@@ -69,15 +77,16 @@ public class OIDCUtils {
         if (operationData instanceof AuthenticationData) {
             sb.append("&login_hint=deviceId-").append(((AuthenticationData) operationData).getDeviceId());
 
-            if(((AuthenticationData) operationData).getPreContextTitle() != null && !((AuthenticationData) operationData).getPreContextTitle().isEmpty()){
+            if (((AuthenticationData) operationData).getPreContextTitle() != null
+                    && !((AuthenticationData) operationData).getPreContextTitle().isEmpty()) {
                 sb.append("&login_hint=preContextTitle-").append(urlEncodeValue(((AuthenticationData) operationData).getPreContextTitle()));
             }
 
             // test context data
-            //sb.append("&login_hint=preContextTitle-").append("testPreContextTitle");
-            //sb.append("&login_hint=preContextMessage-").append("testPreContextMessage");
-            //sb.append("&login_hint=postContextTitle-").append("testPostContextTitle");
-            //sb.append("&login_hint=postContextMessage-").append("testPostContextMessage");
+            // sb.append("&login_hint=preContextTitle-").append("testPreContextTitle");
+            // sb.append("&login_hint=preContextMessage-").append("testPreContextMessage");
+            // sb.append("&login_hint=postContextTitle-").append("testPostContextTitle");
+            // sb.append("&login_hint=postContextMessage-").append("testPostContextMessage");
         }
         else if (operationData instanceof RegistrationData) {
             if (((RegistrationData) operationData).getDeviceName() != null) {
@@ -109,10 +118,10 @@ public class OIDCUtils {
     }
 
     // Method to encode a string value using `UTF-8` encoding scheme
-    private static String urlEncodeValue(String value) {
+    private static String urlEncodeValue(final String value) {
         try {
             return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
+        } catch (final UnsupportedEncodingException ex) {
             throw new RuntimeException(ex.getCause());
         }
     }

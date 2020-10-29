@@ -12,7 +12,7 @@ server:
   servlet:
     session:
       timeout: 300
-    context-path: ""
+    context-path: "/mobileid-inapp"
   compression:
     enabled: true
 
@@ -21,40 +21,37 @@ spring:
     livereload:
       enabled: false
 
-# TODO: Change to YOUR sample user and device name
+# CONFIGURABLE: Modify the values below as needed
 sample:
   externalRef: "sampleUser"
-  deviceName: "sampleDeviceName"
+  deviceName: "sampleDevice"
 
 oidc:
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  oidcBase: "https://beta.signicat.com/oidc/"
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  clientId: "beta.signicat.sampleapp"
+# CONFIGURABLE: oidcBase may be modified if targeting an environment other than preprod.signicat.com. Contact Signicat for applicable values.
+  oidcBase: "https://preprod.signicat.com/oidc/"
+# CONFIGURABLE: clientID and scope may be modified to match the customer-specific setup. Contact Signicat for applicable values.
+  clientId: "preprod.mobileid-sample.sampleapp"
   scope: "openid+profile+mobileid"
-# TODO!: Change redirect_uri
-# Note! This redirect_uri has to be configured on Signicat side
-  redirectUri: "http://<Customer_Callback_Server_IP>:<PORT as specified above server:port>/consumeOidc"
+# CONFIGURABLE: redirect_uri
+# Note! If you modify the redirect_uri, it will have to be configured by Signicat. Contact Signicat if this is the case. For INAPP operation, the mobile device must have connectivity to the host for the redirectURI.
+  redirectUri: "http://localhost:8089/mobileid-inapp/consumeOidc"
+# CONFIGURABLE: Values for the different methods may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
   acrValues: "urn:signicat:oidc:method:"
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  regMethod: "mobileid-inapp-web-reg"
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  authMethod: "mobileid-inapp-web-auth"
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  consentSignMethod: "mobileid-inapp-web-sign"
-# TODO!: Set the proper value
-  cred64: "Get it from Signicat"
+  regMethod: "mobileid-inapp-reg"
+  authMethod: "mobileid-inapp-auth"
+  consentSignMethod: "mobileid-inapp-consent-sign"
+# CONFIGURABLE: cred64 may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
+# Note! The cred64 value is derived from "clientID:clientSecret" and is base64-encoded.
+  cred64: "cHJlcHJvZC5tb2JpbGVpZC1zYW1wbGUuc2FtcGxlYXBwOm1xWi1fNzUtZjJ3TnNpUVRPTmI3T240YUFaN3pjMjE4bXJSVmsxb3VmYTg="
 
 ws:
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  scidWsUrl: "https://beta.signicat.com/ws/scid-v2"
-# ENVIRONMENT-SPECIFIC: Change if you want to target another, non-beta environment. Contact Signicat for the relevant value.
-  service: "signicat"
+# CONFIGURABLE: scidWsUrl may be modified if targeting another environment or another version of the webservice. Contact Signicat for applicable values.
+  scidWsUrl: "https://preprod.signicat.com/ws/scid-v2"
+# CONFIGURABLE: service and domain. May be modified to match the customer-specific setup. Contact Signicat for applicable values.
+  service: "mobileid-sample"
   domain: "default"
-# TODO!: Set the proper value
-  apiKey: "Get it from Signicat"
+# CONFIGURABLE: apiKey may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
+# Note! This value matches the webservice password for the service.
+  apiKey: "Bond007"
 
-microservice:
-# ENVIRONMENT-SPECIFIC: Change if you want to target another environment. Contact Signicat for the relevant value.
-  baseUrl: "http://mobileidsrv.dev.signicat.com/"
-  contextPath: "mobileidsrv/"
+

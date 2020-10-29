@@ -40,9 +40,7 @@ import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
-import com.signicat.generated.scid.Device;
 import com.signicat.generated.scid.Devices;
-import com.signicat.generated.scid.GetDevicesResponse;
 
 import net.minidev.json.JSONObject;
 
@@ -86,8 +84,8 @@ public class WebConsentSignController {
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: getDevices  ('Get devices' button clicked)");
 
-        final Devices fetchedDevices = getAllDevices(extRef);
-        final List<String> deviceNames = getListOfDeviceNames(fetchedDevices);
+        final Devices fetchedDevices = ControllersUtil.getAllDevices(scidWsClient, extRef);
+        final List<String> deviceNames = ControllersUtil.getListOfDeviceNames(fetchedDevices);
 
         sessionData.setExtRef(extRef);
         sessionData.setFetchedDevices(fetchedDevices);
@@ -98,13 +96,14 @@ public class WebConsentSignController {
 
     @GetMapping("/start")
     public void startAuthentication(
+            @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             @RequestParam(value = "preContextContent", required = false) final String preContextContent,
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: /start ('Sign' button clicked)");
 
-        final String deviceId = getDeviceId(sessionData.getFetchedDevices(), devName);
+        final String deviceId = ControllersUtil.getDeviceId(sessionData.getFetchedDevices(), devName);
         String preContextTitleB64decoded = "";
         if(preContextTitle != null && !preContextTitle.isEmpty()) {
             preContextTitleB64decoded = new String(Base64.getDecoder().decode(preContextTitle));
@@ -114,7 +113,7 @@ public class WebConsentSignController {
             final String initialState = OIDCUtils.createState(OIDCUtils.SIGN_CHANNEL + getScrValues());
             LOG.info("Sign initialState:" + initialState);
 
-            final String reqData = prepareSignData(sessionData.getExtRef(), deviceId, preContextTitleB64decoded, preContextContent, initialState);
+            final String reqData = prepareSignData(extRef, deviceId, preContextTitleB64decoded, preContextContent, initialState);
             LOG.info("reqData:" + reqData);
 
             // make signUrl
@@ -226,34 +225,5 @@ public class WebConsentSignController {
         }
 
         throw new ApplicationException("No valid JWK found...");
-    }
-
-    private String getDeviceId(final Devices devices, final String deviceName) {
-        // --- Filter to extract deviceID for the one with deviceName
-        for (final Device device : devices.getDevice()) {
-            if (device.getName().equalsIgnoreCase(deviceName)) {
-                return device.getId();
-            }
-        }
-        throw new ApplicationException("No device " + deviceName + " found for specified account ");
-    }
-
-    private List<String> getListOfDeviceNames(final Devices devices) {
-        final List<String> deviceNames = new ArrayList<>();
-        for (final Device device : devices.getDevice()) {
-            if (device.getType() != null && device.getType().equals("MOBILEID")) {
-                deviceNames.add(device.getName());
-            }
-        }
-        return deviceNames;
-    }
-
-    private Devices getAllDevices(final String extRef) {
-        if (!scidWsClient.accountExists(extRef)) {
-            throw new ApplicationException("Account " + extRef + " does not exist");
-        }
-
-        final GetDevicesResponse result = (GetDevicesResponse) scidWsClient.getDevices(extRef);
-        return result.getDevices();
     }
 }
