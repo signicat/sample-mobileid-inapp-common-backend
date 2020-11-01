@@ -10,7 +10,7 @@
 
   <groupId>com.signicat.samples</groupId>
   <artifactId>sample-mobileid-inapp-common-backend</artifactId>
-  <version>1.0.6-SNAPSHOT</version>
+  <version>1.0.8-SNAPSHOT</version>
 
   <name>Sample MobileID InApp Backend</name>
   <description>Sample MobileID InApp Backend</description>
