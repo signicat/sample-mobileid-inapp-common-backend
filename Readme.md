@@ -1,4 +1,4 @@
-Sample MobileID InApp Backend
+# Sample MobileID InApp Backend
 =====================================
 
 This is a simple sample server that demonstrates a possible server integration for use with Signicat's MobileID service. This server is to be used with Signicat's React Native sample app, the source code of which can be downloaded from https://github.com/signicat/sample-mobileid-inapp-common-react-native.
@@ -6,7 +6,16 @@ This is a simple sample server that demonstrates a possible server integration f
 Registration and authentication start either on the merchant's website or on the mobile app. The sample backend server uses the OIDC protocol for communication with Signicat.
 
 
-Configuration
+## Prerequisites
+-------------------------------
+
+The following software needs to be installed and configured before building the sample server.
+
+- Node (14.7.0 or higher): https://nodejs.org/en/download/
+- Maven (3.6.3 or higher): https://maven.apache.org/install.html
+- Java (1.8 or higher)
+
+## Configuration
 -------------------------------
 
 -   This project reads the following application configuration file:
@@ -19,7 +28,7 @@ Configuration
 	    Also, this redirect_uri has to be configured on Signicat's side, for the particular OIDC client you use.
          
 
-Build and execute
+## Build and execute
 -------------------------------
 
 This project reads an application configuration file (default profile: application.yaml)
