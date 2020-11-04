@@ -1,5 +1,5 @@
-# Sample MobileID InApp Backend
-=====================================
+Sample MobileID InApp Backend
+=======================================
 
 This is a simple sample server that demonstrates a possible server integration for use with Signicat's MobileID service. This server is to be used with Signicat's React Native sample app, the source code of which can be downloaded from https://github.com/signicat/sample-mobileid-inapp-common-react-native.
 
@@ -7,7 +7,6 @@ Registration and authentication start either on the merchant's website or on the
 
 
 ## Prerequisites
--------------------------------
 
 The following software needs to be installed and configured before building the sample server.
 
@@ -16,7 +15,6 @@ The following software needs to be installed and configured before building the 
 - Java (1.8 or higher)
 
 ## Configuration
--------------------------------
 
 -   This project reads the following application configuration file:
 
@@ -29,7 +27,6 @@ The following software needs to be installed and configured before building the 
          
 
 ## Build and execute
--------------------------------
 
 This project reads an application configuration file (default profile: application.yaml)
 
@@ -58,7 +55,8 @@ PS : As part of the above build process, our Maven plugins will
          this Springboot application
         
         
-# MobileID Sample App frontend 
+MobileID Sample App frontend
+=======================================
 
 ## Frontend project setup (You only need these if you want to modify the UI for this project)
 PS : Please go to 'src/frontend' in this project directory 
@@ -77,6 +75,3 @@ npm run serve
 ```
 npm run build
 ```
-
-    
-
