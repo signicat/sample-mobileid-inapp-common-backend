@@ -34,7 +34,8 @@ oidc:
   scope: "openid+profile+mobileid"
 # CONFIGURABLE: redirect_uri
 # Note! If you modify the redirect_uri, it will have to be configured by Signicat. Contact Signicat if this is the case. For INAPP operation, the mobile device must have connectivity to the host for the redirectURI.
-  redirectUri: "http://localhost:8089/mobileid-inapp/consumeOidc"
+  redirectUri: "https://demo.signicat.com/mobileid-inapp/consumeOidc"
+# redirectUri: "http://localhost:8089/mobileid-inapp/consumeOidc"
 # CONFIGURABLE: Values for the different methods may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
   acrValues: "urn:signicat:oidc:method:"
   regMethod: "mobileid-inapp-reg"

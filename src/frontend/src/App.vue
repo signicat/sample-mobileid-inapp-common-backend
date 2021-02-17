@@ -15,8 +15,8 @@
           <router-link to="/mobileid-inapp/" exact>Disclaimer</router-link>
           <router-link to="/mobileid-inapp/registration">Registration</router-link>
           <router-link to="/mobileid-inapp/authentication">Authentication</router-link>
-          <router-link to="/mobileid-inapp/payment-authorization">Payment Authorization</router-link>
-          <router-link to="/mobileid-inapp/consent-sign">Consent Signing</router-link>
+          <router-link to="/mobileid-inapp/payment-authorization">Payment authorization</router-link>
+          <router-link to="/mobileid-inapp/consent-sign">Consent signature</router-link>
         </nav>
       </div>
     </header>
@@ -112,7 +112,25 @@ html body {
       padding: 20px;
     }
   }
-  input[type="large-text"] {
+  input[type="small-text-box"] {
+    max-width:100%;
+    width:150px;
+    border:0;
+    background-color:#f9f9f9;
+    padding-top:10px;
+    padding-bottom:10px;
+    padding-right:5px;
+    padding-left:10px;
+    border-radius:5px;
+    font-size:16px;
+    border:2px solid #fafafa;
+    margin-top:5px;
+    margin-bottom:16px;
+    display:block;
+    box-shadow:inset 1px 1px 3px rgba(0,0,0,0.2);
+    position:relative;transition:.2s
+  }
+  input[type="medium-text-box"] {
     max-width:100%;
     width:390px;
     border:0;
@@ -130,9 +148,9 @@ html body {
     box-shadow:inset 1px 1px 3px rgba(0,0,0,0.2);
     position:relative;transition:.2s
   }
-  input[type="small-text-box"] {
+  input[type="large-text-box"] {
     max-width:100%;
-    width:150px;
+    width:780px;
     border:0;
     background-color:#f9f9f9;
     padding-top:10px;

@@ -2,35 +2,35 @@
   <div>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
-    <h2>Authentication</h2>
+    <h2>Payment authorization</h2>
     <h3>
       <span>1 - Enter the externalRef of the user you want to authenticate</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_basic_info')"></a>
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
-      <ul><li>The 'last used' externalRef is suggested</li></ul>
+      <ul><li>The 'last used' <code>externalRef</code> is suggested in the text box below</li></ul>
       </p>
     </div>
 
     <p>
-      <label>External Reference</label>
+      <label>External reference</label>
     </p>
-    <input v-model="externalRef" type='large-text' value=""/>
+    <input v-model="externalRef" type='medium-text-box' value=""/>
 
 
     <br>
 
     <h3>
-      <span>2 - Click the <b>Get available devices</b> button</span>
+      <span>2 - Click the <b>Get available devices</b> button and select an authentication device</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_get_devices')"></a>
     </h3>
     <div id="show_hide_get_devices" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the request to the sample backend (getDevices) along with the externalRef</li>
-          <li>The sample backend fetches all devices (of type MOBILEID) that are registered for the chosen externalRef</li>
-          <ul><li>SOAP request <code>getDevices</code> to Signicat</li></ul>
+        <li>The client sends the request to the sample backend (<code>getDevices</code>) along with the <code>externalRef</code></li>
+          <li>The sample backend fetches all devices (of type <code>MOBILEID</code>) that are activated for the chosen <code>externalRef</code></li>
+          <ul><li>SOAP request <code>getDevices</code> is made to Signicat</li></ul>
         <li>The list of device names is displayed in the list below</li>
       </ul>
       </p>
@@ -52,18 +52,18 @@
     <br>
 
     <h3>
-      <span>3 - Select an authentication device and click the <b>Authorize</b> button</span>
+      <span>3 - Enter payment information and click the <b>Authorize</b> button</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the authentication request to the sample backend (startPaymentAuthorization)</li>
+        <li>The client sends the payment authorization request to the sample backend (<code>startPaymentAuthorization</code>)</li>
         <li>Sample backend</li>
           <ul>
             <li>Obtains <code>deviceId</code> for the selected device name</li>
-            <li>Collects all necessary data and generates authorizationUrl</li>
-            <li>Initiates authorization code grant flow toward Signicat</li>
+            <li>Collects all necessary data and generates <code>authorizationUrl</code></li>
+            <li>Initiates authorization code grant flow towards Signicat</li>
             <li>Sends response back to the client (with <code>statusUrl</code> and <code>completeUrl</code> links)</li>
           </ul>
       </ul>
@@ -72,9 +72,9 @@
 
     <p>
       <label>Payment info</label>
-      <input v-model="authContextMsg" type='large-text' value="Enter payment info"/>
+      <input v-model="authContextMsg" type='medium-text-box' value="Enter payment info"/>
     </p>
-    
+
     <div>
       <button class="button" @click="startPaymentAuthorization">Authorize</button>
     </div>
@@ -82,17 +82,15 @@
     <br>
     <br>
     <h3>
-      <span>4 - Push notification is displayed on mobile device. Carry out authorization</span>
+      <span>4 - Push notification is displayed on the mobile device. Carry out authorization</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
       <p>
       <ul >
-        <li>The client executes polling calls to the sample backend's
-          <code>/authorizepayment/checkStatus</code> endpoint</li>
+        <li>The client executes polling calls to the sample backend's <code>/authorizepayment/checkStatus</code> endpoint</li>
       <ul><li>The sample backend uses the received <code>statusUrl</code> and executes a call to Signicat</li></ul>
-      <li>When authorization is fulfilled, the client calls the sample backend's <code>/authorizepayment/doComplete</code>
-        endpoint</li>
+      <li>When authorization is fulfilled, the client calls the sample backend's <code>/authorizepayment/doComplete</code> endpoint</li>
           <ul><li>The sample backend executes a call to the <code>completeUrl</code></li></ul>
         <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code>.
         <li>The sample backend carries out regular token exchange and fetches <code>userinfo</code></li>
@@ -121,7 +119,7 @@ export default {
       authContextMsg : "",
       selectedDevice: '',
       deviceList: [],
-      servicePath : "/web"
+      servicePath : this.$store.state.servicePath
     }
   },
 
@@ -146,11 +144,11 @@ export default {
       let authUrl = '/mobileid-inapp' + servicePath + '/authorizepayment/start?externalRef='+ extRef +
           '&deviceName='
           + u;
-     
+
       let contextMsg = this.authContextMsg;
       let contextMsgBase64 = self.utoa(contextMsg);
-      authUrl = authUrl + '&preContextTitle=' + contextMsgBase64;   
-             
+      authUrl = authUrl + '&preContextTitle=' + contextMsgBase64;
+
       const authResponse = await fetch(authUrl)  ;
       if (authResponse.ok) {
         setTimeout(function() {self.loopCheckStatus(servicePath, "/authorizepayment");}, 3000);

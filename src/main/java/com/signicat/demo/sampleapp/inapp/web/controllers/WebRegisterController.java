@@ -1,6 +1,7 @@
 package com.signicat.demo.sampleapp.inapp.web.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,17 +22,21 @@ import com.google.common.collect.ImmutableMap;
 import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
 import com.signicat.demo.sampleapp.inapp.common.StateCache;
-import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
 import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.InitResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
+import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
 import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
+import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.beans.ScidRequest;
-import com.signicat.demo.sampleapp.inapp.common.beans.InitResponse;
-import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
-import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.generated.scid.CreateArtifactResponse;
 
+// ==========================================
+// Web initiated - using OIDC interface
+// ==========================================
 @RestController("WebRegisterController")
 @RequestMapping("/web/register")
 @EnableAutoConfiguration
@@ -60,6 +65,8 @@ public class WebRegisterController {
     @Autowired
     private StateCache          stateCache;
 
+    private final HashMap<String, String[]> userDataMap = new HashMap<>();
+
     @GetMapping("/init")
     public InitResponse index(final HttpServletRequest request, final HttpServletResponse response) {
         final String extRef = sessionData.getExtRef();
@@ -70,7 +77,25 @@ public class WebRegisterController {
         if (devName == null) {
             sessionData.setDevName(defaultDeviceName);
         }
+        sessionData.setActivationCode(null);
         return new InitResponse(sessionData.getExtRef(), sessionData.getDevName());
+    }
+
+    @GetMapping("/info")
+    public InitResponse info(
+        @RequestParam(value = "activationCode", required = true) final String activationCode) {
+        // Since this endpoint is called by the mobile app at the end of the registration flow, there is a new session
+        // object lacking the externalRef and deviceName. We use the activation code as the shared secret for the lookup.
+
+        // NOTE: In a real world scenario, the mobile app would probably do a lockup against a database
+        // passing the MobileID registrationId instead to get hold of externalRef and device name. In this demo, we
+        // don't have a database.
+        final String[] userData = this.userDataMap.get(activationCode);
+        if (userData != null) {
+            this.userDataMap.remove(activationCode);
+            return new InitResponse(userData[0], userData[1]);
+        }
+        return new InitResponse(null, null);
     }
 
     @GetMapping("/start")
@@ -79,6 +104,12 @@ public class WebRegisterController {
             @RequestParam(value = "deviceName", required = true) final String devName,
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: /start ('Register' button clicked)");
+
+        if (ControllersUtil.activationCodeIsNotErrorMessageAndDeviceAlreadyActivated(
+                sessionData.getActivationCode(), scidWsClient, extRef, devName)) {
+            sessionData.setActivationCode(ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED);
+            return ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED;
+        }
 
         final RegistrationData serverData = prepareRegistrationData(extRef, devName);
         final String authorizeUrl = OIDCUtils.getAuthorizeUri(serverData);
@@ -92,6 +123,10 @@ public class WebRegisterController {
         request.getSession().setMaxInactiveInterval(Integer.parseInt(this.sessionTimeout));
         sessionData.setExtRef(extRef);
         sessionData.setRegResponse(regResponse);
+
+        // See note in "info" endpoint on why this is needed
+        final String[] userData = {extRef, devName};
+        this.userDataMap.put(regResponse.getActivationCode(), userData);
 
         final String stateKey = stateCache.storeToStateCache(serverData.getState());
         sessionData.setStateKey(stateKey);

@@ -2,33 +2,33 @@
   <div>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
-    <h2>Consent Signing</h2>
+    <h2>Consent signature</h2>
     <h3>
-      <span>1 - Enter the externalRef of the user you want to authenticate</span>
+      <span>1 - Enter the <code>externalRef</code> of the user you want to authenticate</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_basic_info')"></a>
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
-      <ul><li>The 'last used' externalRef is suggested</li></ul>
+      <ul><li>The 'last used' <code>externalRef</code> is suggested in the text box below</li></ul>
       </p>
     </div>
 
     <p>
-      <label>External Reference</label>
+      <label>External reference</label>
     </p>
-    <input v-model="externalRef" type='large-text' value=""/>
+    <input v-model="externalRef" type='medium-text-box' value=""/>
     <br>
 
     <h3>
-      <span>2 - Click the <b>Get available devices</b> button</span>
+      <span>2 - Click the <b>Get available devices</b> button and select an authentication device</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_get_devices')"></a>
     </h3>
     <div id="show_hide_get_devices" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the request to the sample backend (getDevices) along with the externalRef</li>
-        <li>The sample backend fetches all devices (of type MOBILEID) that are registered for the chosen externalRef</li>
-        <ul><li>SOAP request <code>getDevices</code> to Signicat</li></ul>
+        <li>The client sends the request to the sample backend (<code>getDevices</code>) along with the <code>externalRef</code></li>
+        <li>The sample backend fetches all devices (of type <code>MOBILEID</code>) that are activated for the chosen <code>externalRef</code></li>
+        <ul><li>SOAP request <code>getDevices</code> is made to Signicat</li></ul>
         <li>The list of device names is displayed in the list below</li>
       </ul>
       </p>
@@ -49,19 +49,18 @@
     <br>
 
     <h3>
-      <span>3 - Select an authentication device and click the <b>Sign</b> button</span>
+      <span>3 - Enter the consent text and optionally metadata and click the <b>Sign</b> button</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the Signing request to the sample backend</li>
+        <li>The client sends the consent signature request to the sample backend</li>
         <li>Sample backend</li>
           <ul>
             <li>Obtains <code>deviceId</code> for the selected device name</li>
-            <li>Collects all necessary data and generates authorizationUrl with encrypted request object. Note that
-              encryption key has is retrieved from <code>https://&lt;ENV&gt;/oidc/jwks.json</code></li>
-            <li>Initiates authorization code grant flow toward Signicat</li>
+            <li>Collects all necessary data and generates <code>authorizationUrl</code> with encrypted request object. Note that the encryption key has to be retrieved from <code>https://&lt;ENV&gt;/oidc/jwks.json</code></li>
+            <li>Initiates authorization code grant flow towards Signicat</li>
             <li>Sends response back to the client (with <code>statusUrl</code> and <code>completeUrl</code> links)</li>
           </ul>
       </ul>
@@ -69,16 +68,16 @@
     </div>
 
     <p>
-      <label>Consent sign text</label>
-      <input v-model="authContextMsg" type='large-text' value="Enter consent sign text"/>
+      <label>Consent text</label>
+      <input v-model="authContextMsg" type='medium-text-box' value="Enter consent sign text"/>
     </p>
 
     <p>
       <input type="checkbox" id="metaDataCheck" v-model="checked"/>
       <label for="metaDataCheck"> Use metadata </label>
-      <input v-model="metaData" type='large-text' value="Enter metadata" v-if="checked"/>
+      <input v-model="metaData" type='medium-text-box' value="Enter metadata" v-if="checked"/>
     </p>
-    
+
     <div>
       <button class="button" @click="startSigning">Sign</button>
     </div>
@@ -87,7 +86,7 @@
     <br>
 
     <h3>
-      <span>4 - Push notification is displayed on mobile device. Carry out authentication</span>
+      <span>4 - Push notification is displayed on the mobile device. Carry out authentication</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
@@ -98,7 +97,7 @@
         <li>When authentication is fulfilled, the client calls the sample backend's <code>/consentsign/doComplete</code> endpoint</li>
           <ul><li>The sample backend executes a call to the <code>completeUrl</code></li></ul>
       <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code></li>
-        <li>The sample backend carries out regular token exchange and fetches <code>signed document via signature endpoint</code></li>
+        <li>The sample backend carries out regular token exchange and fetches the signed document via the <code>signature</code> endpoint</li>
         <li>The result is shown in the field below (base64 decoded signed data)</li>
       </ul>
       </p>
@@ -126,7 +125,7 @@ export default {
       checked : false,
       selectedDevice: '',
       deviceList: [],
-      servicePath : "/web"
+      servicePath : this.$store.state.servicePath
     }
   },
 

@@ -1,16 +1,12 @@
 package com.signicat.demo.sampleapp.inapp.microservice;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
-import com.signicat.demo.sampleapp.inapp.common.SessionData;
-import com.signicat.demo.sampleapp.inapp.common.StateCache;
-import com.signicat.demo.sampleapp.inapp.common.beans.InitResponse;
-import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
-import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
-import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
-import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
-import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
-import com.signicat.demo.sampleapp.inapp.microservice.beans.BaseMicroserviceResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -28,11 +24,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
+import com.signicat.demo.sampleapp.inapp.common.SessionData;
+import com.signicat.demo.sampleapp.inapp.common.beans.InitResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
+import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
+import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
+import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
+import com.signicat.demo.sampleapp.inapp.microservice.beans.BaseMicroserviceResponse;
+import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 
+// ==========================================
+// Web initiated - using REST interface
+// ==========================================
 @RestController("MicroRegisterController")
 @RequestMapping("/microservice/register")
 @EnableAutoConfiguration
@@ -58,8 +64,7 @@ public class MicroRegisterController {
     @Autowired
     private SessionData sessionData;
 
-    @Autowired
-    private StateCache stateCache;
+    private final HashMap<String, String[]> userDataMap = new HashMap<>();
 
     @Value("${microservice.contextPath}")
     private String  serviceContextPath;
@@ -77,11 +82,29 @@ public class MicroRegisterController {
         if (devName == null) {
             sessionData.setDevName(defaultDeviceName);
         }
+        sessionData.setActivationCode(null);
 
         // set access token fetcher
         sessionData.setAccessTokenFetcher(new AccessTokenFetcher(oidcProperties));
 
         return new InitResponse(sessionData.getExtRef(), sessionData.getDevName());
+    }
+
+    @GetMapping("/info")
+    public InitResponse info(
+        @RequestParam(value = "activationCode", required = true) final String activationCode) {
+        // Since this endpoint is called by the mobile app at the end of the registration flow, there is a new session
+        // object lacking the externalRef and deviceName. We use the activation code as the shared secret for the lookup.
+
+        // NOTE: In a real world scenario, the mobile app would probably do a lockup against a database
+        // passing the MobileID registrationId instead to get hold of externalRef and device name. In this demo, we
+        // don't have a database.
+        final String[] userData = this.userDataMap.get(activationCode);
+        if (userData != null) {
+            this.userDataMap.remove(activationCode);
+            return new InitResponse(userData[0], userData[1]);
+        }
+        return new InitResponse(null, null);
     }
 
     @GetMapping("/start")
@@ -90,6 +113,12 @@ public class MicroRegisterController {
             @RequestParam(value = "deviceName", required = true) final String devName,
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /start ('Register' button clicked)");
+
+        if (ControllersUtil.activationCodeIsNotErrorMessageAndDeviceAlreadyActivated(
+                sessionData.getActivationCode(), scidWsClient, extRef, devName)) {
+            sessionData.setActivationCode(ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED);
+            return ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED;
+        }
 
         sessionData.setExtRef(extRef);
         sessionData.setDevName(devName);
@@ -103,12 +132,15 @@ public class MicroRegisterController {
         sessionData.setExtRef(extRef);
         sessionData.setRegResponse(regResponse);
 
+        // See note in "info" endpoint on why this is needed
+        final String[] userData = {extRef, devName};
+        this.userDataMap.put(regResponse.getActivationCode(), userData);
         LOG.info("REGISTRATION RESPONSE:" + regResponse.toString());
         return regResponse.getActivationCode();
     }
 
     private RegistrationResponse startRgistrationFlow() throws Exception {
-        final String registrationStartUrl = baseUrl+serviceContextPath+"registration/start";
+        final String registrationStartUrl = baseUrl+serviceContextPath+"register/start";
         final HttpPost httpPost = new HttpPost(registrationStartUrl);
         httpPost.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + sessionData.getAccessTokenFetcher().getValidAccessToken());
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
@@ -119,13 +151,13 @@ public class MicroRegisterController {
         json.put("externalRef", sessionData.getExtRef());
         json.put("deviceName", sessionData.getDevName());
         message = json.toString();
-        StringEntity entity = new StringEntity(message);
+        final StringEntity entity = new StringEntity(message);
         httpPost.setEntity(entity);
 
         RegistrationResponse registrationResponse = null;
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         try (CloseableHttpResponse httpResponse = sessionData.getHttpClient().execute(httpPost)) {
-            String content = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
+            final String content = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
             registrationResponse = mapper.readValue(content, RegistrationResponse.class);
             return registrationResponse;
         } catch (final IOException e) {
@@ -144,10 +176,9 @@ public class MicroRegisterController {
     @GetMapping("/doComplete")
     public BaseMicroserviceResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /doComplete");
-        BaseMicroserviceResponse result =  WebAppUtils.doCompleteMicroservice(sessionData.getHttpClient(),
+        final BaseMicroserviceResponse result =  WebAppUtils.doCompleteMicroservice(sessionData.getHttpClient(),
                 sessionData.getRegResponse().getCompleteUrl(),
                 sessionData.getAccessTokenFetcher().getValidAccessToken());
         return result;
     }
-
 }

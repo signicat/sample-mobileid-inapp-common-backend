@@ -39,10 +39,14 @@ import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.generated.scid.Devices;
 
 import net.minidev.json.JSONObject;
 
+// ==========================================
+// Web initiated - using OIDC interface
+// ==========================================
 @RestController("WebPaymentAuthorizationController")
 @RequestMapping("/web/authorizepayment")
 @EnableAutoConfiguration
@@ -187,7 +191,7 @@ public class WebPaymentAuthorizationController {
         final JSONObject payload_json = new JSONObject();
         payload_json.put("login_hint", login_hint);
         payload_json.put("ui_locales", "en");
-        payload_json.put("scope", "openid profile");
+        payload_json.put("scope", "openid mobileid profile");
         payload_json.put("acr_values", acr_values);
         payload_json.put("response_type", "code");
         payload_json.put("redirect_uri", oidcProperties.getRedirectUri());

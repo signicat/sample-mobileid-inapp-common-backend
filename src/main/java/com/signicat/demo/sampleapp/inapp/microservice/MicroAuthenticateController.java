@@ -1,16 +1,14 @@
 package com.signicat.demo.sampleapp.inapp.microservice;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
-import com.signicat.demo.sampleapp.inapp.common.SessionData;
-import com.signicat.demo.sampleapp.inapp.common.StateCache;
-import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
-import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
-import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
-import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
-import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
-import com.signicat.demo.sampleapp.inapp.microservice.beans.BaseMicroserviceResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -28,14 +26,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
+import com.signicat.demo.sampleapp.inapp.common.SessionData;
+import com.signicat.demo.sampleapp.inapp.common.StateCache;
+import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
+import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
+import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
+import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
+import com.signicat.demo.sampleapp.inapp.microservice.beans.BaseMicroserviceResponse;
+import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
 
+// ==========================================
+// Web initiated - using REST interface
+// ==========================================
 @RestController("MicroAuthenticateController")
 @RequestMapping("/microservice/authenticate")
 @EnableAutoConfiguration
@@ -89,7 +94,7 @@ public class MicroAuthenticateController {
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: getDevices  ('Get devices' button clicked)");
 
-        String devicesUrl = baseUrl+serviceContextPath+"authentication/devices/" + extRef;
+        String devicesUrl = baseUrl+serviceContextPath+"authenticate/getdevices/" + extRef;
         final List<String> deviceNames =
                 WebAppUtils.httpGet(sessionData.getHttpClient(), devicesUrl, ArrayList.class,
                         ImmutableMap.of(
@@ -104,11 +109,13 @@ public class MicroAuthenticateController {
     // TODO consider sending extRef as param here as well. Otherwise it will be null if it is not initialized on init
     @GetMapping("/start")
     public void startAuthentication(
+            @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /start ('Authenticate' button clicked)");
 
+        sessionData.setExtRef(extRef);
         sessionData.setDevName(devName);
 
         String preContextTitleB64decoded = "";
@@ -138,14 +145,14 @@ public class MicroAuthenticateController {
     @GetMapping("/doComplete")
     public BaseMicroserviceResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /doComplete");
-        BaseMicroserviceResponse result =  WebAppUtils.doCompleteMicroservice(sessionData.getHttpClient(),
+        final BaseMicroserviceResponse result =  WebAppUtils.doCompleteMicroservice(sessionData.getHttpClient(),
                 sessionData.getAuthResponse().getCompleteUrl(),
                 sessionData.getAccessTokenFetcher().getValidAccessToken());
         return result;
     }
 
     private AuthenticationResponse startAuthenticationFlow() throws Exception {
-        final String authStartUrl = baseUrl+serviceContextPath+"authentication/start";
+        final String authStartUrl = baseUrl+serviceContextPath+"authenticate/start";
         final HttpPost httpPost = new HttpPost(authStartUrl);
         httpPost.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + sessionData.getAccessTokenFetcher().getValidAccessToken());
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
@@ -156,11 +163,11 @@ public class MicroAuthenticateController {
         json.put("externalRef", sessionData.getExtRef());
         json.put("deviceName", sessionData.getDevName());
         message = json.toString();
-        StringEntity entity = new StringEntity(message);
+        final StringEntity entity = new StringEntity(message);
         httpPost.setEntity(entity);
 
         AuthenticationResponse authenticationResponse = null;
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         try (CloseableHttpResponse httpResponse = sessionData.getHttpClient().execute(httpPost)) {
             authenticationResponse = mapper.readValue(EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8), AuthenticationResponse.class);
             return authenticationResponse;

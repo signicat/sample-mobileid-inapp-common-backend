@@ -5,12 +5,12 @@ import com.google.common.collect.ImmutableMap;
 import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
 import com.signicat.demo.sampleapp.inapp.common.StateCache;
-import com.signicat.demo.sampleapp.inapp.common.beans.SignResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
 import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
+import com.signicat.demo.sampleapp.inapp.microservice.beans.BaseMicroserviceResponse;
 import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
-import com.signicat.demo.sampleapp.inapp.microservice.beans.CompleteSignMicroserviceResponse;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -39,12 +39,12 @@ import java.util.List;
 // ==========================================
 // Web initiated - using REST interface
 // ==========================================
-@RestController("MicroConsentSignController")
-@RequestMapping("/microservice/consentsign")
+@RestController("MicroPaymentAuthorizationController")
+@RequestMapping("/microservice/authorizepayment")
 @EnableAutoConfiguration
-public class MicroConsentSignController {
+public class MicroPaymentAuthorizationController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MicroConsentSignController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MicroPaymentAuthorizationController.class);
 
     @Autowired
     private OIDCProperties oidcProperties;
@@ -106,12 +106,12 @@ public class MicroConsentSignController {
 
     // TODO consider sending extRef as param here as well. Otherwise it will be null if it is not initialized on init
     @GetMapping("/start")
-    public void startConsentSign(
+    public void startPaymentAuthorization(
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        LOG.info("PATH: /start ('Authenticate' button clicked)");
+        LOG.info("PATH: /start ('Authorize' button clicked)");
 
         sessionData.setExtRef(extRef);
         sessionData.setDevName(devName);
@@ -121,58 +121,58 @@ public class MicroConsentSignController {
             preContextTitleB64decoded = new String(Base64.getDecoder().decode(preContextTitle));
         }
 
-        final SignResponse signResponse = startConsentSignFlow(preContextTitleB64decoded);
-        if (signResponse.getError() != null) {
-            throw new ApplicationException(signResponse.getError().getCode() + "-" + signResponse.getError().getMessage());
+        final AuthenticationResponse authResponse = startAuthorizationFlow(preContextTitleB64decoded);
+        if (authResponse.getError() != null) {
+            throw new ApplicationException(authResponse.getError().getCode() + "-" + authResponse.getError().getMessage());
         }
 
         request.getSession().setMaxInactiveInterval(Integer.parseInt(this.sessionTimeout));
-        sessionData.setSignResponse(signResponse);
+        sessionData.setAuthResponse(authResponse);
 
-        LOG.info("CONSENT SIGN RESPONSE:" + signResponse.toString());
+        LOG.info("AUTHORIZATION RESPONSE:" + authResponse.toString());
     }
 
     @GetMapping("/checkStatus")
     public String checkStatus(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /checkStatus");
         return WebAppUtils.checkStatusMicroservice(sessionData.getHttpClient(),
-                sessionData.getSignResponse().getStatusUrl(),
+                sessionData.getAuthResponse().getStatusUrl(),
                 sessionData.getAccessTokenFetcher().getValidAccessToken());
     }
 
     @GetMapping("/doComplete")
-    public CompleteSignMicroserviceResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public BaseMicroserviceResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /doComplete");
-        CompleteSignMicroserviceResponse result =  WebAppUtils.doCompleteSignMicroservice(sessionData.getHttpClient(),
-                sessionData.getSignResponse().getCompleteUrl(),
+        BaseMicroserviceResponse result =  WebAppUtils.doCompleteMicroservice(sessionData.getHttpClient(),
+                sessionData.getAuthResponse().getCompleteUrl(),
                 sessionData.getAccessTokenFetcher().getValidAccessToken());
         return result;
     }
 
-    private SignResponse startConsentSignFlow(final String consentText) throws Exception {
-        final String signStartUrl = baseUrl+serviceContextPath+"sign/start";
-        final HttpPost httpPost = new HttpPost(signStartUrl);
+    private AuthenticationResponse startAuthorizationFlow(final String authorizationText) throws Exception {
+        final String authStartUrl = baseUrl+serviceContextPath+"authenticate/start";
+        final HttpPost httpPost = new HttpPost(authStartUrl);
         httpPost.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + sessionData.getAccessTokenFetcher().getValidAccessToken());
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
         httpPost.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString());
 
         String message;
-        final org.json.simple.JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         json.put("externalRef", sessionData.getExtRef());
         json.put("deviceName", sessionData.getDevName());
-        json.put("consentText", consentText);
+        json.put("consentText", authorizationText);
         message = json.toString();
         StringEntity entity = new StringEntity(message);
         httpPost.setEntity(entity);
 
-        SignResponse signResponse = null;
+        AuthenticationResponse authenticationResponse = null;
         ObjectMapper mapper = new ObjectMapper();
         try (CloseableHttpResponse httpResponse = sessionData.getHttpClient().execute(httpPost)) {
-            final String content = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
-            signResponse = mapper.readValue(content, SignResponse.class);
-            return signResponse;
+            String content = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
+            authenticationResponse = mapper.readValue(content, AuthenticationResponse.class);
+            return authenticationResponse;
         } catch (final IOException e) {
-            throw new ApplicationException("Start consent sign failed: " + e.getMessage());
+            throw new ApplicationException("Start authorization failed: " + e.getMessage());
         }
     }
 }

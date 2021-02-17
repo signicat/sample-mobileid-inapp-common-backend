@@ -40,10 +40,14 @@ import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.generated.scid.Devices;
 
 import net.minidev.json.JSONObject;
 
+// ==========================================
+// Web initiated - using OIDC interface
+// ==========================================
 @RestController("WebConsentSignController")
 @RequestMapping("/web/consentsign")
 @EnableAutoConfiguration

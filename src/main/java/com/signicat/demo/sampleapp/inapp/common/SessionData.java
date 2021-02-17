@@ -1,15 +1,16 @@
 package com.signicat.demo.sampleapp.inapp.common;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
+
 import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SignResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SignStatusResponse;
 import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
 import com.signicat.generated.scid.Devices;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Component
 @SessionScope
@@ -20,6 +21,7 @@ public class SessionData {
 
     private String                    extRef;
     private String                    devName;
+    private String                    activationCode;
     private RegistrationResponse      regResponse;
     private AuthenticationResponse    authResponse;
     private String                    stateKey;
@@ -47,6 +49,14 @@ public class SessionData {
 
     public void setDevName(final String devName) {
         this.devName = devName;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(final String activationCode) {
+        this.activationCode = activationCode;
     }
 
     public RegistrationResponse getRegResponse() {
@@ -82,11 +92,11 @@ public class SessionData {
     }
     public SignResponse getSignResponse() { return signResponse; }
 
-    public void setSignResponse(SignResponse signResponse) { this.signResponse = signResponse; }
+    public void setSignResponse(final SignResponse signResponse) { this.signResponse = signResponse; }
 
     public SignStatusResponse getSignStatusResponse() { return signStatusResponse; }
 
-    public void setSignStatusResponse(SignStatusResponse signStatusResponse) {
+    public void setSignStatusResponse(final SignStatusResponse signStatusResponse) {
         this.signStatusResponse = signStatusResponse;
     }
 
@@ -94,7 +104,7 @@ public class SessionData {
         return accessTokenFetcher;
     }
 
-    public void setAccessTokenFetcher(AccessTokenFetcher accessTokenFetcher) {
+    public void setAccessTokenFetcher(final AccessTokenFetcher accessTokenFetcher) {
         this.accessTokenFetcher = accessTokenFetcher;
     }
 }

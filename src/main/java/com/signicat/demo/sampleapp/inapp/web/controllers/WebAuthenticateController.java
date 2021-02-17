@@ -28,8 +28,12 @@ import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.generated.scid.Devices;
 
+// ==========================================
+// Web initiated - using OIDC interface
+// ==========================================
 @RestController("WebAuthenticateController")
 @RequestMapping("/web/authenticate")
 @EnableAutoConfiguration

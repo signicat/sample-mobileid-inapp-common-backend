@@ -9,28 +9,28 @@
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
-      <ul><li>The 'last used' externalRef is suggested</li></ul>
+      <ul><li>The 'last used' <code>externalRef</code> is suggested in the text box below</li></ul>
       </p>
     </div>
 
     <p>
-      <label>External Reference</label>
+      <label>External reference</label>
     </p>
-    <input v-model="externalRef" type='large-text' value=""/>
+    <input v-model="externalRef" type='medium-text-box' value=""/>
 
 
     <br>
 
     <h3>
-      <span>2 - Click the <b>Get available devices</b> button</span>
+      <span>2 - Click the <b>Get available devices</b> button and select an authentication device</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_get_devices')"></a>
     </h3>
     <div id="show_hide_get_devices" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the request to the sample backend (getDevices) along with the externalRef</li>
-          <li>The sample backend fetches all devices (of type MOBILEID) that are registered for the chosen externalRef</li>
-          <ul><li>SOAP request <code>getDevices</code> to Signicat</li></ul>
+        <li>The client sends the request to the sample backend (<code>getDevices</code>) along with the <code>externalRef</code></li>
+          <li>The sample backend fetches all devices (of type <code>MOBILEID</code>) that are activated for the chosen <code>externalRef</code></li>
+          <ul><li>SOAP request <code>getDevices</code> is made to Signicat</li></ul>
         <li>The list of device names is displayed in the list below</li>
       </ul>
       </p>
@@ -52,18 +52,18 @@
     <br>
 
     <h3>
-      <span>3 - Select an authentication device and click the <b>Authenticate</b> button</span>
+      <span>3 - Click the <b>Authenticate</b> button</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the authentication request to the sample backend (startAuthentication)</li>
+        <li>The client sends the authentication request to the sample backend (<code>startAuthentication</code>)</li>
         <li>Sample backend</li>
           <ul>
             <li>Obtains <code>deviceId</code> for the selected device name</li>
-            <li>Collects all necessary data and generates authorizationUrl</li>
-            <li>Initiates authorization code grant flow toward Signicat</li>
+            <li>Collects all necessary data and generates <code>authorizationUrl</code></li>
+            <li>Initiates authorization code grant flow towards Signicat</li>
             <li>Sends response back to the client (with <code>statusUrl</code> and <code>completeUrl</code> links)</li>
           </ul>
       </ul>
@@ -77,7 +77,7 @@
     <br>
     <br>
     <h3>
-      <span>4 - Push notification is displayed on mobile device. Carry out authentication</span>
+      <span>4 - Push notification is displayed on the mobile device. Carry out authentication.</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
@@ -89,7 +89,7 @@
       <li>When authentication is fulfilled, the client calls the sample backend's <code>/authenticate/doComplete</code>
         endpoint</li>
           <ul><li>The sample backend executes a call to the <code>completeUrl</code></li></ul>
-        <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code>.
+        <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code>
         <li>The sample backend carries out regular token exchange and fetches <code>userinfo</code></li>
         <li>The result is shown in the field below</li>
       </ul>
@@ -115,7 +115,7 @@ export default {
       response : "",
       selectedDevice: '',
       deviceList: [],
-      servicePath : "/web"
+      servicePath : this.$store.state.servicePath
     }
   },
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="header-description">MobileID Sample</p>
-    <h1>Web to merchant App Integration</h1>
+    <h1>Web to merchant app integration</h1>
     <h2>Registration</h2>
     <h3>
       <span>1 - Enter the externalRef and deviceName</span>
@@ -11,11 +11,11 @@
     <div  class="info-text-box" id="show_hide_before_registration">
       <p>
       <ul>
-        <li>Normally, in order to carry out device registration, the user must already be authenticated by the merchant backend</li>
-        <li>Obtaining the externalRef and deviceName is done by the merchant backend</li>
+        <li>Normally, in order to carry out device activation, the user must already be authenticated by the merchant backend</li>
+        <li>Obtaining the <code>externalRef</code> and <code>deviceName</code> is done by the merchant backend</li>
         <li>However, for this particular sample, we make it possible to configure these parameters here.</li>
         <br>
-        <li>Note: The default externalRef and deviceName are configured in the application.yaml file.</li>
+        <li>Note: The default <code>externalRef</code> and <code>deviceName</code> are configured in the <code>application.yaml</code> file.</li>
       </ul>
       </p>
     </div>
@@ -27,21 +27,21 @@
     <br>
 
     <h3>
-      <span>2 - Click the <b>Register device</b> button</span>
+      <span>2 - Click the <b>Activate device</b> button</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_register_device')"></a>
     </h3>
 
     <div id="show_hide_register_device" class="info-text-box">
       <p>
       <ul>
-        <li>The client sends the registration request to the sample backend (startRegistration)</li>
+        <li>The client sends the registration request to the sample backend (<code>startRegistration</code>)</li>
         <ul>
-          <li>Note: The configured externalRef and deviceName are sent in the request, while, as explained above, this would normally not be a case</li>
+          <li>Note: The configured <code>externalRef</code> and <code>deviceName</code> are sent in the request, while this would normally not be the case, as noted above</li>
         </ul>
         <li>Sample backend</li>
           <ul>
-            <li>Collects all necessary data and generates authorizationUrl</li>
-            <li>Initiates authorization code grant flow toward Signicat</li>
+            <li>Collects all necessary data and generates <code>authorizationUrl</code></li>
+            <li>Initiates authorization code grant flow towards Signicat</li>
             <li>Sends response back to the client</li>
             <ul>
               <li><code>activationCode</code> (displayed in the text field below)</li>
@@ -51,17 +51,17 @@
       </ul>
       </p>
     </div>
-    <div> <a class="button" @click="startRegistration">Register device</a></div>
+    <div> <a class="button" @click="startRegistration">Activate device</a></div>
 
     <p>
       <label>Activation code</label>
     </p>
-    <input v-model="activationCode" id="pairingCode" type="small-text-box" disabled="disabled"
-             placeholder="Received code"/>
+    <input v-model="activationCode" id="pairingCode" :type="activationCode.length > 6 ? 'large-text-box' : 'small-text-box'" disabled="disabled"
+           placeholder="Received code"/>
     <br>
 
     <h3>
-      <span>3 - Use mobile app and enter activation code to register your device</span>
+      <span>3 - Use mobile app and enter activation code to activate MobileID on your device</span>
       <a class="question-mark-button" @click="$showTip($event, 'show_hide_use_app')"></a>
     </h3>
     <div  class="info-text-box" id="show_hide_use_app">
@@ -69,7 +69,7 @@
       <ul>
         <li>The client executes polling calls to the sample backend's <code>/register/checkStatus</code> endpoint</li>
       <ul><li>The sample backend uses the received <code>statusUrl</code> and executes a call to Signicat</li></ul>
-        <li>When registration is fulfilled, the client calls the sample backend's <code>/register/doComplete</code>
+        <li>When the device activation is fulfilled, the client calls the sample backend's <code>/register/doComplete</code>
           endpoint</li>
           <ul><li>The sample backend executes a call to the <code>completeUrl</code></li></ul>
         <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code></li>
@@ -96,7 +96,7 @@ export default {
       deviceName : "",
       activationCode : "",
       response : "",
-      servicePath : "/web"
+      servicePath : this.$store.state.servicePath
     }
   },
 

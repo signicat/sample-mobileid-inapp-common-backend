@@ -3,6 +3,7 @@ package com.signicat.demo.sampleapp.inapp.mobile.controllers;
 import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
 import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SuccessResponse;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.beans.ScidRequest;
@@ -35,7 +36,7 @@ public class InAppRegisterController {
     protected String            sessionTimeout;
 
     @GetMapping("/start")
-    public @ResponseBody BaseResponse startRegistartion(
+    public @ResponseBody BaseResponse startRegistration(
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             final HttpServletRequest request, final HttpServletResponse response) {
@@ -51,16 +52,27 @@ public class InAppRegisterController {
         return new SuccessResponse(authorizeUrl);
     }
 
-    @PostMapping(path = "/deleteDevice", consumes = "application/json")
+    @GetMapping("/isDeviceActivated")
+    public @ResponseBody BaseResponse isDeviceActivated(
+            @RequestParam(value = "externalRef", required = true) final String extRef,
+            @RequestParam(value = "deviceName", required = true) final String devName,
+            final HttpServletRequest request, final HttpServletResponse response) {
+        LOG.info("PATH: /isDeviceActivated");
+        return new SuccessResponse(ControllersUtil.isDeviceAlreadyActivated(scidWsClient, extRef, devName));
+    }
+
+    @GetMapping("/deleteDevice")
     public @ResponseBody BaseResponse deleteDevice(
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.debug("/inAppReg/deleteDevice received");
-
-        // delete device from an account
-        scidWsClient.deleteDevice(extRef, devName);
-        return new SuccessResponse(true);
+        LOG.info("PATH: deleteDevice");
+        if (scidWsClient.accountExists(extRef)) {
+            // delete device from an account
+            scidWsClient.deleteDevice(extRef, devName);
+            return new SuccessResponse(true);
+        }
+        return new SuccessResponse(false);
     }
 
     private RegistrationData prepareRegistrationData(final String extRef, final String devName) {

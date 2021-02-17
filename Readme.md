@@ -41,6 +41,8 @@ Then, run it:
     or  with 
     
         java -jar -Dspring.profiles.active=<profile> target/sample-mobileid-inapp-common-backend.jar
+
+	where <profile> is what is in between the dash and .yaml in the YAML configuration filename.
         
 If you have not changed the "port" property in the "server" section of the application.yaml file, the server can be accessed at 
 
