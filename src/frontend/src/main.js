@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import App from './App.vue'
-import Router from "vue-router";
+import Router from 'vue-router';
 import Disclaimer from './components/Disclaimer.vue'
 import Registration from './components/Registration.vue'
 import Authentication from './components/Authentication.vue'
@@ -15,9 +15,8 @@ Vue.use(Vuex)
 Vue.config.productionTip = false
 
 Vue.prototype.$showTip = function(e, id) {
-  console.log(e)
-  console.log(id)
-  var targetElement = document.getElementById(id);
+  console.log(e);
+  const targetElement = document.getElementById(id);
   if (e.target.classList.contains('active')) {
     targetElement.classList.remove('show')
     e.target.classList.remove('active')
@@ -27,26 +26,37 @@ Vue.prototype.$showTip = function(e, id) {
   }
 }
 
+const productTitle = 'MobileID Sample - ';
 const routes = [
   {
+    name: 'disclaimerRoute',
     path: '/mobileid-inapp/',
-    component: Disclaimer
+    component: Disclaimer,
+    meta: { title: productTitle + 'Disclaimer'}
   },
   {
+    name: 'registrationRoute',
     path: '/mobileid-inapp/registration',
-    component: Registration
+    component: Registration,
+    meta: { title: productTitle + 'Registration'}
   },
   {
+    name: 'authenticationRoute',
     path: '/mobileid-inapp/authentication',
-    component: Authentication
+    component: Authentication,
+    meta: { title: productTitle + 'Authentication'}
   },
   {
+    name: 'paymentRoute',
     path: '/mobileid-inapp/payment-authorization',
-    component: PaymentAuthorization
+    component: PaymentAuthorization,
+    meta: { title: productTitle + 'Payment authorization'}
   },
   {
+    name: 'consentRoute',
     path: '/mobileid-inapp/consent-sign',
-    component: ConsentSign
+    component: ConsentSign,
+    meta: { title: productTitle + 'Consent signature'}
   }
 ]
 

@@ -1,6 +1,7 @@
 package com.signicat.demo.sampleapp.inapp.microservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
@@ -110,18 +111,14 @@ public class MicroPaymentAuthorizationController {
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
+            @RequestParam(value = "pushPayload", required = false) final String pushPayload,
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /start ('Authorize' button clicked)");
 
         sessionData.setExtRef(extRef);
         sessionData.setDevName(devName);
 
-        String preContextTitleB64decoded = "";
-        if(preContextTitle != null && !preContextTitle.isEmpty()) {
-            preContextTitleB64decoded = new String(Base64.getDecoder().decode(preContextTitle));
-        }
-
-        final AuthenticationResponse authResponse = startAuthorizationFlow(preContextTitleB64decoded);
+        final AuthenticationResponse authResponse = startAuthorizationFlow(preContextTitle, pushPayload);
         if (authResponse.getError() != null) {
             throw new ApplicationException(authResponse.getError().getCode() + "-" + authResponse.getError().getMessage());
         }
@@ -149,8 +146,8 @@ public class MicroPaymentAuthorizationController {
         return result;
     }
 
-    private AuthenticationResponse startAuthorizationFlow(final String authorizationText) throws Exception {
-        final String authStartUrl = baseUrl+serviceContextPath+"authenticate/start";
+    private AuthenticationResponse startAuthorizationFlow(final String preContextTitle, final String pushPayload) throws Exception {
+        final String authStartUrl = baseUrl + serviceContextPath + "authenticate/start";
         final HttpPost httpPost = new HttpPost(authStartUrl);
         httpPost.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + sessionData.getAccessTokenFetcher().getValidAccessToken());
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
@@ -160,7 +157,15 @@ public class MicroPaymentAuthorizationController {
         final JSONObject json = new JSONObject();
         json.put("externalRef", sessionData.getExtRef());
         json.put("deviceName", sessionData.getDevName());
-        json.put("consentText", authorizationText);
+
+        if (!Strings.isNullOrEmpty(preContextTitle)) {
+            json.put("consentText", new String(Base64.getDecoder().decode(preContextTitle)));
+        }
+
+        if (!Strings.isNullOrEmpty(pushPayload)) {
+            json.put("pushPayload", pushPayload);
+        }
+
         message = json.toString();
         StringEntity entity = new StringEntity(message);
         httpPost.setEntity(entity);

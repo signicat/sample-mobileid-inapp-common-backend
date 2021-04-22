@@ -8,6 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -102,6 +103,7 @@ public class WebPaymentAuthorizationController {
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
+            @RequestParam(value = "pushPayload", required = false) final String pushPayload,
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: /start ('Authenticate' button clicked)");
 
@@ -113,7 +115,7 @@ public class WebPaymentAuthorizationController {
 
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + getScrValues());
         LOG.info("InitialState:" + state);
-        final String reqData = prepareEncryptedAuthenticationData(extRef, deviceId, preContextTitleB64decoded, state);
+        final String reqData = prepareEncryptedAuthenticationData(extRef, deviceId, preContextTitleB64decoded, pushPayload, state);
         LOG.info("Encrypted requewst:" + reqData);
         final String authorizeUrl = OIDCUtils.getEncryptedAuthorizeUri(oidcProperties.getOidcBase(), reqData);
         LOG.info("AUTHORIZE URL:" + authorizeUrl);
@@ -152,7 +154,7 @@ public class WebPaymentAuthorizationController {
     }
 
     private String prepareEncryptedAuthenticationData(final String extRef, final String devId,
-            final String preContextTitle, final String initialState) {
+            final String preContextTitle, final String pushPayload, final String initialState) {
         try {
             final RSAKey encyptionKey = getSignicatJWK();
 
@@ -162,7 +164,7 @@ public class WebPaymentAuthorizationController {
             final JWEHeader header = new JWEHeader.Builder(alg, EncryptionMethod.A256CBC_HS512).keyID(encyptionKey.getKeyID()).build();
 
             // Create a JWEObject with header and JSON payload
-            final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, initialState)));
+            final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, pushPayload, initialState)));
 
             // Create an encrypter with the specified public RSA key
             final RSAEncrypter encrypter = new RSAEncrypter(encyptionKey.toPublicJWK());
@@ -177,7 +179,7 @@ public class WebPaymentAuthorizationController {
         }
     }
 
-    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String initialState){
+    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String pushPayload, final String initialState){
 
         final String acr_values = getScrValues();
 
@@ -186,6 +188,9 @@ public class WebPaymentAuthorizationController {
         login_hint.add("deviceId-"+devId);
         if (preContextTitle != null) {
             login_hint.add("preContextTitle-"+preContextTitle);
+        }
+        if (!Strings.isNullOrEmpty(pushPayload)) {
+            login_hint.add("pushPayload-" + pushPayload);
         }
 
         final JSONObject payload_json = new JSONObject();

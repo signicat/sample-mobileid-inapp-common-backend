@@ -1,11 +1,12 @@
 <template>
-  <div>
+  <div> <!-- Div auto removed when rendered - cannot use for page ID -->
+    <div id="consentRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
     <h2>Consent signature</h2>
     <h3>
       <span>1 - Enter the <code>externalRef</code> of the user you want to authenticate</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_basic_info')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about externalRef" @click="$showTip($event, 'show_hide_basic_info')"></a>
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
@@ -16,12 +17,12 @@
     <p>
       <label>External reference</label>
     </p>
-    <input v-model="externalRef" type='medium-text-box' value=""/>
+    <input v-model="externalRef" id="externalRef" type='medium-text-box' value="" aria-label="External reference"/>
     <br>
 
     <h3>
       <span>2 - Click the <b>Get available devices</b> button and select an authentication device</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_get_devices')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about available devices" @click="$showTip($event, 'show_hide_get_devices')"></a>
     </h3>
     <div id="show_hide_get_devices" class="info-text-box">
       <p>
@@ -40,7 +41,7 @@
     <p>
       <label>Available devices</label>
     </p>
-    <select v-model="selectedDevice" class="signicat-select" text="Choose a device to Authenticate">
+    <select v-model="selectedDevice" class="signicat-select" text="Choose a device to Authenticate" aria-label="Available devices">
       <option v-for="device in deviceList" v-bind:key="device.index" v-bind:value="device.value">
         {{ device.value }}
       </option>
@@ -49,8 +50,21 @@
     <br>
 
     <h3>
-      <span>3 - Enter the consent text and optionally metadata and click the <b>Sign</b> button</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_select_device')"></a>
+      <span>3 - Optionally enter additional information to be passed back to the app</span>
+    </h3>
+    <p>
+      <input type="checkbox" id="pushPayloadCheck" v-model="pushPayloadChecked"/>
+      <label for="pushPayloadCheck"> Specify push payload</label>
+      <input v-model="pushPayload" type='medium-text-box' value="" placeholder="Push message payload" v-if="pushPayloadChecked"/>
+    </p>
+
+    <br>
+    <br>
+
+
+    <h3>
+      <span>4 - Enter the consent text and optionally metadata, and click the <b>Sign</b> button</span>
+      <a tabindex="0" class="question-mark-button" id="Open help section about consent text" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
       <p>
@@ -69,13 +83,13 @@
 
     <p>
       <label>Consent text</label>
-      <input v-model="authContextMsg" type='medium-text-box' value="Enter consent sign text"/>
+      <input v-model="authContextMsg" type='medium-text-box' value="Enter consent sign text" aria-label="Consent text"/>
     </p>
 
     <p>
       <input type="checkbox" id="metaDataCheck" v-model="checked"/>
-      <label for="metaDataCheck"> Use metadata </label>
-      <input v-model="metaData" type='medium-text-box' value="Enter metadata" v-if="checked"/>
+      <label for="metaDataCheck"> Specify metadata (optional)</label>
+      <input v-model="metaData" type='medium-text-box' value="Enter metadata" placeholder="Metadata" v-if="checked"/>
     </p>
 
     <div>
@@ -87,7 +101,7 @@
 
     <h3>
       <span>4 - Push notification is displayed on the mobile device. Carry out authentication</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_push_info')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about push notification" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
       <p>
@@ -98,7 +112,7 @@
           <ul><li>The sample backend executes a call to the <code>completeUrl</code></li></ul>
       <li>Signicat answers with the <code>authorizationCode</code> to the <code>redirect_uri</code></li>
         <li>The sample backend carries out regular token exchange and fetches the signed document via the <code>signature</code> endpoint</li>
-        <li>The result is shown in the field below (base64 decoded signed data)</li>
+        <li>The result is shown in the field below (Base64-decoded signed data)</li>
       </ul>
       </p>
     </div>
@@ -106,8 +120,7 @@
     <p>
       <label>Signed response</label>
     </p>
-      <textarea v-model="response" id="consentsignCompleteResponse" disabled="disabled"></textarea>
-
+      <textarea v-model="response" id="consentsignCompleteResponse" disabled="disabled" aria-label="Signed response"></textarea>
 
   </div>
 </template>
@@ -125,10 +138,11 @@ export default {
       checked : false,
       selectedDevice: '',
       deviceList: [],
-      servicePath : this.$store.state.servicePath
+      servicePath : this.$store.state.servicePath,
+      pushPayload: '',
+      pushPayloadChecked: false
     }
   },
-
   beforeMount() {
     this.init()
   },
@@ -147,8 +161,11 @@ export default {
       let servicePath = this.servicePath
       let u = this.selectedDevice
       let authUrl = '/mobileid-inapp' + servicePath + '/consentsign/start?externalRef='+ extRef +
-          '&deviceName='
-          + u;
+          '&deviceName=' + u;
+
+      if (this.pushPayloadChecked === true) {
+        authUrl += '&pushPayload=' + encodeURI(this.pushPayload)
+      }
 
       let contextMsg = this.authContextMsg;
       let contextMsgBase64 = self.utoa(contextMsg);

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.google.common.base.Strings;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -80,6 +81,11 @@ public class OIDCUtils {
             if (((AuthenticationData) operationData).getPreContextTitle() != null
                     && !((AuthenticationData) operationData).getPreContextTitle().isEmpty()) {
                 sb.append("&login_hint=preContextTitle-").append(urlEncodeValue(((AuthenticationData) operationData).getPreContextTitle()));
+            }
+
+            final String pushPayload = ((AuthenticationData) operationData).getPushPayload();
+            if (!Strings.isNullOrEmpty(pushPayload)) {
+                sb.append("&login_hint=pushPayload-").append(urlEncodeValue(pushPayload));
             }
 
             // test context data

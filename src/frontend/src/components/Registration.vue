@@ -1,11 +1,12 @@
 <template>
-  <div>
+  <div> <!-- Div auto removed when rendered - cannot use for page ID -->
+    <div id="registrationRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
     <h2>Registration</h2>
     <h3>
-      <span>1 - Enter the externalRef and deviceName</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_before_registration')"></a>
+      <span>1 - Enter the <code>externalRef</code> and <code>deviceName</code></span>
+      <a tabindex="0" class="question-mark-button" id="Open help section about externalRef and deviceName" @click="$showTip($event, 'show_hide_before_registration')"></a>
     </h3>
 
     <div  class="info-text-box" id="show_hide_before_registration">
@@ -21,14 +22,14 @@
     </div>
 
     <p><label>External reference</label></p>
-    <input v-model="externalRef" id="externalRef" type="small-text-box"/>
+    <input v-model="externalRef" id="externalRef" type="small-text-box" aria-label="External reference"/>
     <p><label>Device name</label></p>
-    <input v-model="deviceName" id="deviceName" type="small-text-box"/>
+    <input v-model="deviceName" id="deviceName" type="small-text-box" aria-label="Device name"/>
     <br>
 
     <h3>
       <span>2 - Click the <b>Activate device</b> button</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_register_device')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about device activation" @click="$showTip($event, 'show_hide_register_device')"></a>
     </h3>
 
     <div id="show_hide_register_device" class="info-text-box">
@@ -51,18 +52,18 @@
       </ul>
       </p>
     </div>
-    <div> <a class="button" @click="startRegistration">Activate device</a></div>
+    <div> <a tabindex="0" class="button" @click="startRegistration">Activate device</a></div>
 
     <p>
       <label>Activation code</label>
     </p>
-    <input v-model="activationCode" id="pairingCode" :type="activationCode.length > 6 ? 'large-text-box' : 'small-text-box'" disabled="disabled"
-           placeholder="Received code"/>
+    <input v-model="activationCode" id="pairingCode" :type="activationCode.length > 6 ? 'large-text-box' : 'small-text-box'" readonly="readonly"
+           placeholder="Received code" aria-label="Activation code"/>
     <br>
 
     <h3>
       <span>3 - Use mobile app and enter activation code to activate MobileID on your device</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_use_app')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about the activation flow" @click="$showTip($event, 'show_hide_use_app')"></a>
     </h3>
     <div  class="info-text-box" id="show_hide_use_app">
       <p>
@@ -82,7 +83,8 @@
     <p>
       <label>Registration response</label>
     </p>
-    <textarea v-model="response" disabled="disabled"></textarea>
+    <textarea v-model="response" disabled="disabled" aria-label="Registration response"></textarea>
+
   </div>
 </template>
 
@@ -99,9 +101,8 @@ export default {
       servicePath : this.$store.state.servicePath
     }
   },
-
   beforeMount() {
-    this.init()
+    this.init();
   },
   methods: {
     init: async function() {

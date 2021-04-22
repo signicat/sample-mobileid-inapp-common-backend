@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -111,19 +112,14 @@ public class MicroAuthenticateController {
     public void startAuthentication(
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
-            @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
+            @RequestParam(value = "pushPayload", required = false) final String pushPayload,
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         LOG.info("PATH: /start ('Authenticate' button clicked)");
 
         sessionData.setExtRef(extRef);
         sessionData.setDevName(devName);
 
-        String preContextTitleB64decoded = "";
-        if(preContextTitle != null && !preContextTitle.isEmpty()) {
-            preContextTitleB64decoded = new String(Base64.getDecoder().decode(preContextTitle));
-        }
-
-        final AuthenticationResponse authResponse = startAuthenticationFlow();
+        final AuthenticationResponse authResponse = startAuthenticationFlow(pushPayload);
         if (authResponse.getError() != null) {
             throw new ApplicationException(authResponse.getError().getCode() + "-" + authResponse.getError().getMessage());
         }
@@ -151,8 +147,8 @@ public class MicroAuthenticateController {
         return result;
     }
 
-    private AuthenticationResponse startAuthenticationFlow() throws Exception {
-        final String authStartUrl = baseUrl+serviceContextPath+"authenticate/start";
+    private AuthenticationResponse startAuthenticationFlow(final String pushPayload) throws Exception {
+        final String authStartUrl = baseUrl + serviceContextPath + "authenticate/start";
         final HttpPost httpPost = new HttpPost(authStartUrl);
         httpPost.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + sessionData.getAccessTokenFetcher().getValidAccessToken());
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
@@ -162,6 +158,11 @@ public class MicroAuthenticateController {
         final JSONObject json = new JSONObject();
         json.put("externalRef", sessionData.getExtRef());
         json.put("deviceName", sessionData.getDevName());
+
+        if (!Strings.isNullOrEmpty(pushPayload)) {
+            json.put("pushPayload", pushPayload);
+        }
+
         message = json.toString();
         final StringEntity entity = new StringEntity(message);
         httpPost.setEntity(entity);

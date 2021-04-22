@@ -8,6 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -104,6 +105,7 @@ public class WebConsentSignController {
             @RequestParam(value = "deviceName", required = true) final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             @RequestParam(value = "preContextContent", required = false) final String preContextContent,
+            @RequestParam(value = "pushPayload", required = false) final String pushPayload,
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: /start ('Sign' button clicked)");
 
@@ -117,7 +119,7 @@ public class WebConsentSignController {
             final String initialState = OIDCUtils.createState(OIDCUtils.SIGN_CHANNEL + getScrValues());
             LOG.info("Sign initialState:" + initialState);
 
-            final String reqData = prepareSignData(extRef, deviceId, preContextTitleB64decoded, preContextContent, initialState);
+            final String reqData = prepareSignData(extRef, deviceId, preContextTitleB64decoded, preContextContent, pushPayload, initialState);
             LOG.info("reqData:" + reqData);
 
             // make signUrl
@@ -166,7 +168,7 @@ public class WebConsentSignController {
                         HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString()));
     }
 
-    private String prepareSignData(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String initialState) throws JOSEException, ParseException {
+    private String prepareSignData(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String pushPayload, final String initialState) throws JOSEException, ParseException {
         final RSAKey encyptionKey = getSignicatJWK();
 
         final JWEAlgorithm alg = JWEAlgorithm.parse(encyptionKey.getAlgorithm().getName());
@@ -175,7 +177,7 @@ public class WebConsentSignController {
         final JWEHeader header = new JWEHeader.Builder(alg, EncryptionMethod.A256CBC_HS512).keyID(encyptionKey.getKeyID()).build();
 
         // Create a JWEObject with header and JSON payload
-        final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, preContextContent, initialState)));
+        final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, preContextContent, pushPayload, initialState)));
 
         // Create an encrypter with the specified public RSA key
         final RSAEncrypter encrypter = new RSAEncrypter(encyptionKey.toPublicJWK());
@@ -187,7 +189,7 @@ public class WebConsentSignController {
         return jweObject.serialize();
     }
 
-    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String initialState){
+    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String pushPayload, final String initialState){
 
         final String acr_values = getScrValues();
 
@@ -196,6 +198,9 @@ public class WebConsentSignController {
         login_hint.add("deviceId-"+devId);
         if (preContextContent != null) {
             login_hint.add("metaData-"+preContextContent);
+        }
+        if (!Strings.isNullOrEmpty(pushPayload)) {
+            login_hint.add("pushPayload-" + pushPayload);
         }
 
         final JSONObject payload_json = new JSONObject();

@@ -1,11 +1,12 @@
 <template>
-  <div>
+  <div> <!-- Div auto removed when rendered - cannot use for page ID -->
+    <div id="paymentRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
     <h2>Payment authorization</h2>
     <h3>
       <span>1 - Enter the externalRef of the user you want to authenticate</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_basic_info')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about externalRef" @click="$showTip($event, 'show_hide_basic_info')"></a>
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
@@ -16,14 +17,14 @@
     <p>
       <label>External reference</label>
     </p>
-    <input v-model="externalRef" type='medium-text-box' value=""/>
+    <input v-model="externalRef" id="externalRef" type='medium-text-box' value="" aria-label="External reference"/>
 
 
     <br>
 
     <h3>
       <span>2 - Click the <b>Get available devices</b> button and select an authentication device</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_get_devices')"></a>
+      <a tabindex="0" class="question-mark-button" id="Open help section about available devices" @click="$showTip($event, 'show_hide_get_devices')"></a>
     </h3>
     <div id="show_hide_get_devices" class="info-text-box">
       <p>
@@ -42,7 +43,7 @@
     <p>
       <label>Available devices</label>
     </p>
-    <select v-model="selectedDevice" class="signicat-select" text="Choose a device to Authenticate">
+    <select v-model="selectedDevice" class="signicat-select" text="Choose a device to Authenticate" aria-label="Available devices">
       <option v-for="device in deviceList" v-bind:key="device.index"  v-bind:value="device.value">
         {{ device.value }}
       </option>
@@ -50,10 +51,20 @@
 
     <br>
     <br>
-
     <h3>
-      <span>3 - Enter payment information and click the <b>Authorize</b> button</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_select_device')"></a>
+      <span>3 - Optionally enter additional information to be passed back to the app</span>
+    </h3>
+    <p>
+      <input type="checkbox" id="pushPayloadCheck" v-model="pushPayloadChecked"/>
+      <label for="pushPayloadCheck"> Specify push payload</label>
+      <input v-model="pushPayload" type='medium-text-box' value="" placeholder="Push message payload" v-if="pushPayloadChecked"/>
+    </p>
+
+    <br>
+    <br>
+    <h3>
+      <span>4 - Enter payment information and click the <b>Authorize</b> button</span>
+      <a tabindex="0" class="question-mark-button" id="Open help section about payment authorization" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
       <p>
@@ -71,8 +82,8 @@
     </div>
 
     <p>
-      <label>Payment info</label>
-      <input v-model="authContextMsg" type='medium-text-box' value="Enter payment info"/>
+      <label>Payment information</label>
+      <input v-model="authContextMsg" type='medium-text-box' value="Enter payment information" aria-label="Payment information"/>
     </p>
 
     <div>
@@ -82,8 +93,8 @@
     <br>
     <br>
     <h3>
-      <span>4 - Push notification is displayed on the mobile device. Carry out authorization</span>
-      <a class="question-mark-button" @click="$showTip($event, 'show_hide_push_info')"></a>
+      <span>5 - Push notification is displayed on the mobile device. Carry out authorization</span>
+      <a tabindex="0" class="question-mark-button" id="Open help section about push notification" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
       <p>
@@ -102,8 +113,7 @@
     <p>
       <label>Payment authorization response</label>
     </p>
-    <textarea v-model="response" id="authorizepaymentCompleteResponse" disabled="disabled"></textarea>
-
+    <textarea v-model="response" id="authorizepaymentCompleteResponse" disabled="disabled" aria-label="Payment authorization response"></textarea>
 
   </div>
 </template>
@@ -119,14 +129,14 @@ export default {
       authContextMsg : "",
       selectedDevice: '',
       deviceList: [],
-      servicePath : this.$store.state.servicePath
+      servicePath : this.$store.state.servicePath,
+      pushPayload: '',
+      pushPayloadChecked: false
     }
   },
-
   beforeMount() {
     this.init()
   },
-
   methods : {
     init : async function() {
       const initResponse = await fetch('/mobileid-inapp' + this.servicePath +'/authorizepayment/init')  ;
@@ -141,9 +151,12 @@ export default {
       let extRef = this.externalRef
       let servicePath = this.servicePath
       let u = this.selectedDevice
-      let authUrl = '/mobileid-inapp' + servicePath + '/authorizepayment/start?externalRef='+ extRef +
-          '&deviceName='
-          + u;
+      let authUrl = '/mobileid-inapp' + servicePath + '/authorizepayment/start?externalRef='+ extRef
+          + '&deviceName=' + u;
+
+      if (this.pushPayloadChecked === true) {
+        authUrl += '&pushPayload=' + encodeURI(this.pushPayload)
+      }
 
       let contextMsg = this.authContextMsg;
       let contextMsgBase64 = self.utoa(contextMsg);

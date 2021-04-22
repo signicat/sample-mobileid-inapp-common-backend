@@ -88,13 +88,14 @@ public class WebAuthenticateController {
     public void startAuthentication(
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
+            @RequestParam(value = "pushPayload", required = false) final String pushPayload,
             final HttpServletRequest request, final HttpServletResponse response) {
         LOG.info("PATH: /start ('Authenticate' button clicked)");
 
         final String deviceId = ControllersUtil.getDeviceId(sessionData.getFetchedDevices(), devName);
 
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + getScrValues());
-        final AuthenticationData serverData = prepareAuthenticationData(extRef, deviceId, state);
+        final AuthenticationData serverData = prepareAuthenticationData(extRef, deviceId, pushPayload, state);
         final String authorizeUrl = OIDCUtils.getAuthorizeUri(serverData);
         LOG.info("AUTHORIZE URL:" + authorizeUrl);
 
@@ -131,11 +132,11 @@ public class WebAuthenticateController {
                 HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString()));
     }
 
-    private AuthenticationData prepareAuthenticationData(final String extRef, final String devId, final String state) {
+    private AuthenticationData prepareAuthenticationData(final String extRef, final String devId, final String pushPayload, final String state) {
         return new AuthenticationData(oidcProperties.getOidcBase() + WebAppUtils.AUTHORIZE_RESPONSE_TYPE_CODE, oidcProperties.getClientId(),
                 oidcProperties.getScope(),
                 oidcProperties.getRedirectUri(),
-                oidcProperties.getAcrValues() + oidcProperties.getAuthMethod(), state, extRef, devId, "");
+                oidcProperties.getAcrValues() + oidcProperties.getAuthMethod(), state, extRef, devId, "", pushPayload);
     }
 
     private String getScrValues() {

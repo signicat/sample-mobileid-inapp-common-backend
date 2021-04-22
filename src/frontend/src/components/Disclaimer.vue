@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div> <!-- Div auto removed when rendered - cannot use for page ID -->
+    <div id="disclaimerRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>MobileID InApp : Sample Backend</h1>
     <h2>This is a simple sample app that shows how an existing merchant mobile app can be used together with a merchant's web solution.</h2>
-    <h2>Note that registration and authentication start either on the merchant's website or on the merchant's mobile app.</h2>
+    <h2>Note that registration, or device activation, is the prerequisite for all other operations.</h2>
     <p>A sample merchant mobile Android app that can be used together with this backend is available on <a href="https://play.google.com/store/apps/details?id=com.signicat.sampleapp.inapp" target="_blank" rel="noopener noreferrer">Google Play</a> and the source code is available on <a href="https://github.com/signicat/sample-mobileid-app-common-react-native" target="_blank" rel="noopener noreferrer">GitHub.</a></p>
     <p>A sample merchant mobile iOS app that can be used together with this backend is available via TestFlight. See our <a href="https://developer.signicat.com/enterprise/identity-methods/mobileid-inapp/#test-information" target="_blank" rel="noopener noreferrer">Test information</a> documentation for details.</p>
     <p>This product is for demo purposes and is not of production quality. Therefore, this sample code provides an indication of the customer experience, but may not reflect the exact functionality the customer may expect under an agreement with Signicat.</p>
