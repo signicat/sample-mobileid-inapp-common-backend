@@ -124,11 +124,17 @@ export default {
           '&deviceName='
           + devName);
       const resText = await regResponse.text();
+
       if (regResponse.ok) {
-        this.activationCode = resText;
-        setTimeout(function() {self.loopCheckStatus(servicePath, "/register");}, 3000);
-      }
-      else {
+        const resTextJso = JSON.parse(resText);
+        this.activationCode = resTextJso.data;
+        if (resTextJso.status === 'SUCCESS') {
+          // Only start polling if we got a proper activation code and not the 'device already activated' message
+          setTimeout(function () {
+            self.loopCheckStatus(servicePath, "/register");
+          }, 3000);
+        }
+      } else {
         await self.reportError("register", resText)
       }
     },

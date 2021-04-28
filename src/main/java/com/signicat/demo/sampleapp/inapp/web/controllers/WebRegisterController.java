@@ -6,6 +6,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.signicat.demo.sampleapp.inapp.common.beans.*;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -22,10 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
 import com.signicat.demo.sampleapp.inapp.common.StateCache;
-import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
-import com.signicat.demo.sampleapp.inapp.common.beans.InitResponse;
-import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
-import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
 import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
@@ -99,7 +96,7 @@ public class WebRegisterController {
     }
 
     @GetMapping("/start")
-    public String startRegistration(
+    public BaseResponse startRegistration(
             @RequestParam(value = "externalRef", required = true) final String extRef,
             @RequestParam(value = "deviceName", required = true) final String devName,
             final HttpServletRequest request, final HttpServletResponse response) {
@@ -108,7 +105,7 @@ public class WebRegisterController {
         if (ControllersUtil.activationCodeIsNotErrorMessageAndDeviceAlreadyActivated(
                 sessionData.getActivationCode(), scidWsClient, extRef, devName)) {
             sessionData.setActivationCode(ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED);
-            return ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED;
+            return new ErrorResponse(ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED);
         }
 
         final RegistrationData serverData = prepareRegistrationData(extRef, devName);
@@ -133,7 +130,7 @@ public class WebRegisterController {
 
         LOG.info("REGISTRATION RESPONSE:" + regResponse.toString());
         LOG.info("STATE KEY:" + stateKey);
-        return regResponse.getActivationCode();
+        return new SuccessResponse(regResponse.getActivationCode());
     }
 
     @GetMapping("/checkStatus")
