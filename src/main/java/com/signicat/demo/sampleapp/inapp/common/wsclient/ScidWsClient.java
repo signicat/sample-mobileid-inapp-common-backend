@@ -69,7 +69,7 @@ public class ScidWsClient extends WebServiceGatewaySupport {
             request.setPassword(apiKey);
             request.setDomain(domain);
             request.setExternalReference(accountName);
-            LOG.info("Checking if account exists for:" + accountName + " against " +scidWsUrl + " with service/domain " + serviceName + "/" +domain);
+            LOG.info("Checking if account exists for :" + accountName + " against " +scidWsUrl + " with service/domain " + serviceName + "/" +domain);
             final GetAccountResponse response = (GetAccountResponse) getWebServiceTemplate().marshalSendAndReceive(scidWsUrl, request);
             if (response.getAccount() != null && response.getAccount().getExternalReference().equalsIgnoreCase(accountName)) {
                 return true;

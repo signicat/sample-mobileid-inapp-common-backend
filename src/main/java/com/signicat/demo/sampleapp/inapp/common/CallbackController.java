@@ -1,10 +1,10 @@
 package com.signicat.demo.sampleapp.inapp.common;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
 import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.ErrorResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SuccessResponse;
@@ -50,18 +49,17 @@ public class CallbackController {
     @GetMapping("/consumeOidc")
     public @ResponseBody
     BaseResponse consume(
-            @RequestParam(value = "state", required = true) final String state,
-            final HttpServletRequest request,
-            final HttpServletResponse response) {
+            @RequestParam(value = "state") final String state,
+            final HttpServletRequest request) {
 
-        LOG.info("/consumeOidc message received with state= " + state);
+        LOG.info("/consumeOidc message received with state= {}", state);
 
         final Map<String, String[]> paramsMap = request.getParameterMap();
-        LOG.info("paramsMap " + paramsMap.toString());
+        LOG.info("paramsMap {}", paramsMap.toString());
         for (final Map.Entry m:paramsMap.entrySet()) {
-            LOG.info("key " + m.getKey());
+            LOG.info("key {}", m.getKey());
             for (final String s:(String[])m.getValue()) {
-                LOG.info("value " + s);
+                LOG.info("value {}",  s);
             }
                     }
 
@@ -73,7 +71,7 @@ public class CallbackController {
         // validate state/session
         if(state.startsWith(OIDCUtils.INAPP_CHANNEL)){
             // validate inapp session
-            LOG.info("validating inapp session... ");
+            LOG.info("validating in-app session... ");
             final String originalState = (String) request.getSession().getAttribute(OIDCUtils.ORIG_STATE);
             if (originalState == null || !originalState.equals(state)) {
                 LOG.error("invalid inapp session... ");
@@ -95,7 +93,7 @@ public class CallbackController {
     }
 
     private BaseResponse processAuthorizationCode(final String code, final String state) {
-        LOG.info("Received code =" + code + " - exec /token request to obtain access_token");
+        LOG.info("Received code = {} - exec /token request to obtain access_token", code);
         final JSONObject tokenJson = OIDCUtils.getToken(sessionData.getHttpClient(), oidcProperties, code);
 
         final String errorDesc = "error_description";
@@ -105,7 +103,7 @@ public class CallbackController {
         }
 
         final String accessToken = (String) tokenJson.get("access_token");
-        LOG.info("Received accessToken =" + accessToken + " - exec /userinfo request");
+        LOG.info("Received accessToken = {} - exec /userinfo request", accessToken);
 
         if(state.startsWith(OIDCUtils.SIGN_CHANNEL)){
             final String signedResult = getSignResult(accessToken);
@@ -127,7 +125,7 @@ public class CallbackController {
         httpGet.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString());
 
         try (CloseableHttpResponse httpResponse = sessionData.getHttpClient().execute(httpGet)) {
-            final String content = EntityUtils.toString(httpResponse.getEntity(), Charsets.UTF_8);
+            final String content = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
             return new ObjectMapper().readValue(content, JSONObject.class);
         } catch (final IOException e) {
             throw new ApplicationException("Fetching userinfo failed: " + e.getMessage());
@@ -140,7 +138,7 @@ public class CallbackController {
         httpGet.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.toString());
 
         try (CloseableHttpResponse httpResponse = sessionData.getHttpClient().execute(httpGet)) {
-            final String content = EntityUtils.toString(httpResponse.getEntity(), Charsets.UTF_8);
+            final String content = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
             return content;
         } catch (final IOException e) {
             throw new ApplicationException("Fetching signature failed: " + e.getMessage());

@@ -3,6 +3,9 @@
     <div id="consentRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
+    <p>
+      On this page you can perform a signature by means of a consent text string with evidence output.
+    </p>  
     <h2>Consent signature</h2>
     <h3>
       <span>1 - Enter the <code>externalRef</code> of the user you want to authenticate</span>
@@ -10,14 +13,16 @@
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
-      <ul><li>The 'last used' <code>externalRef</code> is suggested in the text box below</li></ul>
+      <ul>
+        <li>The 'last used' <code>externalRef</code> is suggested in the text box below</li>
+      </ul>
       </p>
     </div>
 
     <p>
       <label>External reference</label>
     </p>
-    <input v-model="externalRef" id="externalRef" type='medium-text-box' value="" aria-label="External reference"/>
+	<input v-model="externalRef" id="externalRef" type='medium-text-box' value="" aria-label="External reference"/>
     <br>
 
     <h3>
@@ -47,7 +52,6 @@
       </option>
     </select>
     <br>
-    <br>
 
     <h3>
       <span>3 - Optionally enter additional information to be passed back to the app</span>
@@ -57,13 +61,10 @@
       <label for="pushPayloadCheck"> Specify push payload</label>
       <input v-model="pushPayload" type='medium-text-box' value="" placeholder="Push message payload" v-if="pushPayloadChecked"/>
     </p>
-
     <br>
-    <br>
-
 
     <h3>
-      <span>4 - Enter the consent text and optionally metadata, and click the <b>Sign</b> button</span>
+      <span>4 - Enter the consent text and optionally metadata</span>
       <a tabindex="0" class="question-mark-button" id="Open help section about consent text" @click="$showTip($event, 'show_hide_select_device')"></a>
     </h3>
     <div id="show_hide_select_device" class="info-text-box">
@@ -83,14 +84,29 @@
 
     <p>
       <label>Consent text</label>
-      <input v-model="authContextMsg" type='medium-text-box' value="Enter consent sign text" aria-label="Consent text"/>
     </p>
-
+     <input v-model="authContextMsg" type='medium-text-box' aria-label="Consent text"/>
     <p>
       <input type="checkbox" id="metaDataCheck" v-model="checked"/>
       <label for="metaDataCheck"> Specify metadata (optional)</label>
       <input v-model="metaData" type='medium-text-box' value="Enter metadata" placeholder="Metadata" v-if="checked"/>
     </p>
+    <br>
+
+   <h3>
+      <span>5 - Select the desired SDO format and click the <b>Sign</b> button</span>
+      <a tabindex="0" class="question-mark-button" id="Open help section about SDO format" @click="$showTip($event, 'show_hide_select_device')"></a>
+    </h3>
+   <p>
+      <label>SDO format</label>
+    </p>
+    <select v-model="selectedSdoFormat" class="signicat-select" text="Choose a sdo format" aria-label="Sdo format">
+       <option v-for="sdof in sdoFormatList" :key="sdof"  :value="sdof">
+        {{ sdof }}
+      </option>
+    </select>
+    <br>
+    <br>
 
     <div>
       <button class="button" @click="startSigning">Sign</button>
@@ -100,7 +116,7 @@
     <br>
 
     <h3>
-      <span>4 - Push notification is displayed on the mobile device. Carry out authentication</span>
+      <span>6 - Push notification is displayed on the mobile device. Carry out authentication</span>
       <a tabindex="0" class="question-mark-button" id="Open help section about push notification" @click="$showTip($event, 'show_hide_push_info')"></a>
     </h3>
     <div id="show_hide_push_info" class="info-text-box">
@@ -136,9 +152,12 @@ export default {
       authContextMsg : "",
       metaData : "",
       checked : false,
-      selectedDevice: '',
+      selectedDevice: 'default',
       deviceList: [],
-      servicePath : this.$store.state.servicePath,
+      selectedSdoFormat: 'Jwt',
+      sdoJwtPresent: false,
+      sdoFormatList: ["Ltv-Sdo"],
+      servicePath : "/backend",
       pushPayload: '',
       pushPayloadChecked: false
     }
@@ -150,7 +169,15 @@ export default {
     init : async function() {
       const initResponse = await fetch('/mobileid-inapp' + this.servicePath +'/consentsign/init')  ;
       if (initResponse.ok) {
-        this.externalRef = await initResponse.text();
+        const jsonObject = await initResponse.json();
+        const extRef = jsonObject.externalRef;
+        this.externalRef = extRef;
+        this.sdoJwtPresent = jsonObject.signJwtMethodIsConfigured;
+        if (this.sdoJwtPresent) {
+           this.sdoFormatList.push("Jwt")
+        } else {
+            this.selectedSdoFormat = this.sdoFormatList[0]
+        }
       } else {
         throw Error(initResponse.statusText);
       }
@@ -160,8 +187,11 @@ export default {
       let extRef = this.externalRef
       let servicePath = this.servicePath
       let u = this.selectedDevice
+      let sdo = this.selectedSdoFormat
       let authUrl = '/mobileid-inapp' + servicePath + '/consentsign/start?externalRef='+ extRef +
           '&deviceName=' + u;
+
+      authUrl += '&sdoFormat=' + sdo
 
       if (this.pushPayloadChecked === true) {
         authUrl += '&pushPayload=' + encodeURI(this.pushPayload)

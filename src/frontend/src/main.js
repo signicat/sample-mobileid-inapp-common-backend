@@ -66,17 +66,7 @@ const router = new Router({
   routes
 });
 
-// to use MobileID Microservice use, servicePath: '/microservice'
-// to use MobileID non-microservice backend, servicePath: '/web'
-// Note that MobileID Microservice is not in production yet ( as of 12.2020)!
-const store = new Vuex.Store({
-  state: {
-    servicePath: '/web'
-  },
-})
-
 new Vue({
   router,
-  render: h => h(App),
-  store: store,
+  render: h => h(App)
 }).$mount('#app')

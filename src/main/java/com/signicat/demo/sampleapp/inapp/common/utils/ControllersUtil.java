@@ -11,6 +11,7 @@ import com.signicat.generated.scid.GetDevicesResponse;
 
 public class ControllersUtil {
 
+    public static final String DEVICE_ACTIVATED = "ACTIVATED";
     public static final String STR_DEVICE_IS_ALREADY_ACTIVATED = "Device already activated - press 'Activate device' again to override";
 
     private ControllersUtil() {}
@@ -37,7 +38,7 @@ public class ControllersUtil {
     public static List<String> getListOfDeviceNames(final Devices devices) {
         final List<String> deviceNames = new ArrayList<>();
         for (final Device device : devices.getDevice()) {
-            if (device.getType() != null && device.getType().equals("MOBILEID")) {
+            if (device.getType() != null && device.getState().equals(DEVICE_ACTIVATED) && device.getType().equals("MOBILEID")) {
                 deviceNames.add(device.getName());
             }
         }
@@ -56,7 +57,7 @@ public class ControllersUtil {
 
     public static boolean activationCodeIsNotErrorMessageAndDeviceAlreadyActivated(
             final String activationCodeData, final ScidWsClient scidWsClient, final String extRef, final String devName) {
-        boolean activationCodeContainsError = activationCodeData != null
+        final boolean activationCodeContainsError = activationCodeData != null
                 && activationCodeData.equals(ControllersUtil.STR_DEVICE_IS_ALREADY_ACTIVATED);
         return !activationCodeContainsError && ControllersUtil.isDeviceAlreadyActivated(scidWsClient, extRef, devName);
     }

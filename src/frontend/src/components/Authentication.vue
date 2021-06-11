@@ -3,6 +3,9 @@
     <div id="authenticationRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
+    <p>
+      On this page you can authenticate a previously registered user.
+    </p>
     <h2>Authentication</h2>
     <h3>
       <span>1 - Enter the <code>externalRef</code> of the user you want to authenticate</span>
@@ -10,7 +13,9 @@
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
-      <ul><li>The 'last used' <code>externalRef</code> is suggested in the text box below</li></ul>
+      <ul>
+        <li>The 'last used' <code>externalRef</code> is suggested in the text box below</li>
+      </ul>
       </p>
     </div>
 
@@ -124,7 +129,7 @@ export default {
       response : "",
       selectedDevice: '',
       deviceList: [],
-      servicePath : this.$store.state.servicePath,
+      servicePath : "/backend",
       pushPayload: '',
       pushPayloadChecked: false
     }

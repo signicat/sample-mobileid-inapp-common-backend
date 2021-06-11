@@ -10,28 +10,15 @@ public class OIDCProperties {
     private String clientId;
     private String scope;
     private String redirectUri;
-    // private String deviceRedirectUri;
     private String acrValues;
     private String cred64;
     private String regMethod;
+    private String reregMethod;
     private String authMethod;
     private String consentSignMethod;
+    private String consentSignMethodJwt;
 
     public OIDCProperties() {}
-
-    /*
-    public OIDCProperties(final String oidcBase, final String clientId, final String scope, final String redirectUri,
-            final String acrValues, final String cred64, final String regMethod, final String authMethod) {
-        this.oidcBase = oidcBase;
-        this.clientId = clientId;
-        this.scope = scope;
-        this.redirectUri = redirectUri;
-        this.acrValues = acrValues;
-        this.cred64 = cred64;
-        this.regMethod = regMethod;
-        this.authMethod = authMethod;
-    }
-    */
 
     public void setOidcBase(final String oidcBase) {
         this.oidcBase = oidcBase;
@@ -69,10 +56,6 @@ public class OIDCProperties {
         return this.redirectUri;
     }
 
-    //public String getDeviceRedirectUri() { return deviceRedirectUri; }
-
-    //public void setDeviceRedirectUri(String deviceRedirectUri) { this.deviceRedirectUri = deviceRedirectUri; }
-
     public void setAcrValues(final String acrValues) {
         this.acrValues = acrValues;
     }
@@ -97,6 +80,14 @@ public class OIDCProperties {
         this.regMethod = regMethod;
     }
 
+    public String getReregMethod() {
+        return reregMethod;
+    }
+
+    public void setReregMethod(final String reregMethod) {
+        this.reregMethod = reregMethod;
+    }
+
     public String getAuthMethod() {
         return authMethod;
     }
@@ -105,7 +96,19 @@ public class OIDCProperties {
         this.authMethod = authMethod;
     }
 
-    public String getConsentSignMethod() { return consentSignMethod; }
+    public String getConsentSignMethod() {
+        return consentSignMethod;
+    }
 
-    public void setConsentSignMethod(String consentSignMethod) { this.consentSignMethod = consentSignMethod; }
+    public void setConsentSignMethod(final String consentSignMethod) {
+        this.consentSignMethod = consentSignMethod;
+    }
+
+    public String getConsentSignMethodJwt() {
+        return consentSignMethodJwt;
+    }
+
+    public void setConsentSignMethodJwt(final String consentSignMethodJwt) {
+        this.consentSignMethodJwt = consentSignMethodJwt;
+    }
 }

@@ -9,7 +9,6 @@ import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SignResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SignStatusResponse;
-import com.signicat.demo.sampleapp.inapp.microservice.utils.AccessTokenFetcher;
 import com.signicat.generated.scid.Devices;
 
 @Component
@@ -28,8 +27,6 @@ public class SessionData {
     private Devices                   fetchedDevices;
     private SignResponse              signResponse;
     private SignStatusResponse        signStatusResponse;
-
-    private AccessTokenFetcher        accessTokenFetcher;
 
     public CloseableHttpClient getHttpClient() {
         return httpClient;
@@ -100,11 +97,4 @@ public class SessionData {
         this.signStatusResponse = signStatusResponse;
     }
 
-    public AccessTokenFetcher getAccessTokenFetcher() {
-        return accessTokenFetcher;
-    }
-
-    public void setAccessTokenFetcher(final AccessTokenFetcher accessTokenFetcher) {
-        this.accessTokenFetcher = accessTokenFetcher;
-    }
 }

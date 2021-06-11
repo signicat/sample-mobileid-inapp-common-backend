@@ -3,14 +3,19 @@
     <div id="paymentRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
+    <p>
+      On this page you can perform the authorization of a payment transaction by means of a consent text string without evidence output.
+    </p>    
     <h2>Payment authorization</h2>
     <h3>
-      <span>1 - Enter the externalRef of the user you want to authenticate</span>
+      <span>1 - Enter the <code>externalRef</code> of the user you want to authenticate</span>
       <a tabindex="0" class="question-mark-button" id="Open help section about externalRef" @click="$showTip($event, 'show_hide_basic_info')"></a>
     </h3>
     <div id="show_hide_basic_info" class="info-text-box">
       <p>
-      <ul><li>The 'last used' <code>externalRef</code> is suggested in the text box below</li></ul>
+      <ul>
+        <li>The 'last used' <code>externalRef</code> is suggested in the text box below</li>
+      </ul>
       </p>
     </div>
 
@@ -129,7 +134,7 @@ export default {
       authContextMsg : "",
       selectedDevice: '',
       deviceList: [],
-      servicePath : this.$store.state.servicePath,
+      servicePath : "/backend",
       pushPayload: '',
       pushPayloadChecked: false
     }

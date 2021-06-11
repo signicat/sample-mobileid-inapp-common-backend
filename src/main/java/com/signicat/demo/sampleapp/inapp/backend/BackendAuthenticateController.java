@@ -1,9 +1,8 @@
-package com.signicat.demo.sampleapp.inapp.web.controllers;
+package com.signicat.demo.sampleapp.inapp.backend;
 
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
@@ -34,12 +33,12 @@ import com.signicat.generated.scid.Devices;
 // ==========================================
 // Web initiated - using OIDC interface
 // ==========================================
-@RestController("WebAuthenticateController")
-@RequestMapping("/web/authenticate")
+@RestController("BackendAuthenticateController")
+@RequestMapping("/backend/authenticate")
 @EnableAutoConfiguration
-public class WebAuthenticateController {
+public class BackendAuthenticateController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WebAuthenticateController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BackendAuthenticateController.class);
 
     @Autowired
     private OIDCProperties      oidcProperties;
@@ -60,7 +59,8 @@ public class WebAuthenticateController {
     private StateCache          stateCache;
 
     @GetMapping("/init")
-    public String index(final HttpServletRequest request, final HttpServletResponse response) {
+    public String init() {
+        LOG.info("PATH: /init");
         final String extRef = sessionData.getExtRef();
         if (extRef == null) {
             sessionData.setExtRef(defaultExternalRef);
@@ -70,9 +70,8 @@ public class WebAuthenticateController {
 
     @GetMapping("/getDevices")
     public List<String> getDevicesbuttonClicked(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: getDevices  ('Get devices' button clicked)");
+            @RequestParam(value = "externalRef") final String extRef) {
+        LOG.info("PATH: /getDevices");
 
         final Devices fetchedDevices = ControllersUtil.getAllDevices(scidWsClient,extRef);
         final List<String> deviceNames = ControllersUtil.getListOfDeviceNames(fetchedDevices);
@@ -80,24 +79,24 @@ public class WebAuthenticateController {
         sessionData.setExtRef(extRef);
         sessionData.setFetchedDevices(fetchedDevices);
 
-        LOG.info("FETCHED DEVICES:" + deviceNames.toString());
+        LOG.info("FETCHED DEVICES: {}", deviceNames);
         return deviceNames;
     }
 
     @GetMapping("/start")
     public void startAuthentication(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            @RequestParam(value = "deviceName", required = true) final String devName,
+            @RequestParam(value = "externalRef") final String extRef,
+            @RequestParam(value = "deviceName") final String devName,
             @RequestParam(value = "pushPayload", required = false) final String pushPayload,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: /start ('Authenticate' button clicked)");
+            final HttpServletRequest request) {
+        LOG.info("PATH: /start");
 
         final String deviceId = ControllersUtil.getDeviceId(sessionData.getFetchedDevices(), devName);
 
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + getScrValues());
         final AuthenticationData serverData = prepareAuthenticationData(extRef, deviceId, pushPayload, state);
         final String authorizeUrl = OIDCUtils.getAuthorizeUri(serverData);
-        LOG.info("AUTHORIZE URL:" + authorizeUrl);
+        LOG.info("AUTHORIZE URL: {}", authorizeUrl);
 
         final AuthenticationResponse authResponse = startAuthorizeFlow(authorizeUrl);
         if (authResponse.getError() != null) {
@@ -109,18 +108,18 @@ public class WebAuthenticateController {
         final String stateKey = stateCache.storeToStateCache(state);
         sessionData.setStateKey(stateKey);
 
-        LOG.info("AUTENTICATION RESPONSE:" + authResponse.toString());
-        LOG.info("STATE KEY:" + stateKey);
+        LOG.info("AUTHENTICATION RESPONSE: {}", authResponse);
+        LOG.info("STATE KEY: {}", stateKey);
     }
 
     @GetMapping("/checkStatus")
-    public String checkStatus(final HttpServletRequest request, final HttpServletResponse response) {
+    public String checkStatus() {
         LOG.info("PATH: /checkStatus");
         return WebAppUtils.checkStatus(sessionData.getHttpClient(), sessionData.getAuthResponse().getStatusUrl());
     }
 
     @GetMapping("/doComplete")
-    public BaseResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) {
+    public BaseResponse doComplete() {
         LOG.info("PATH: /doComplete");
         return WebAppUtils.doComplete(sessionData.getHttpClient(), sessionData.getAuthResponse().getCompleteUrl(),
                 sessionData.getStateKey());

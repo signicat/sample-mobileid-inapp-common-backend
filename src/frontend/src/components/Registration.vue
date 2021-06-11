@@ -3,6 +3,9 @@
     <div id="registrationRoutePage"/>
     <p class="header-description">MobileID Sample</p>
     <h1>Web to merchant app integration</h1>
+    <p>
+      On this page you can use our sample web application with backend to register a MobileID user account and enroll a new device.
+    </p>
     <h2>Registration</h2>
     <h3>
       <span>1 - Enter the <code>externalRef</code> and <code>deviceName</code></span>
@@ -11,12 +14,13 @@
 
     <div  class="info-text-box" id="show_hide_before_registration">
       <p>
-      <ul>
-        <li>Normally, in order to carry out device activation, the user must already be authenticated by the merchant backend</li>
-        <li>Obtaining the <code>externalRef</code> and <code>deviceName</code> is done by the merchant backend</li>
-        <li>However, for this particular sample, we make it possible to configure these parameters here.</li>
+Normally, in order to carry out device activation, the user must already be authenticated by the merchant backend.
         <br>
-        <li>Note: The default <code>externalRef</code> and <code>deviceName</code> are configured in the <code>application.yaml</code> file.</li>
+      <ul>
+        <li>The <code>externalRef</code> is the MobileID account identifier. This is a shared identifier between the merchant and Signicat that points to the user account on the Signicat MobileID identity store. Examples could be a random UUID created at the merchant's end, an email address, phone number, national identification number or a hash of any of the above. It is the responsibility of the merchant to map this identifier to the physical end-user.</li>
+        <li>The <code>deviceName</code> is an identifier that is either set by the merchant using the API, or by the end-user via the user interface.</li>
+        <li>Obtaining the <code>externalRef</code> and <code>deviceName</code> is done by the merchant backend. However, for this particular sample, we make it possible to configure these parameters here.</li>
+        <li>The default <code>externalRef</code> and <code>deviceName</code> are configured in the <code>application.yaml</code> file.</li>
       </ul>
       </p>
     </div>
@@ -98,7 +102,7 @@ export default {
       deviceName : "",
       activationCode : "",
       response : "",
-      servicePath : this.$store.state.servicePath
+      servicePath : "/backend",
     }
   },
   beforeMount() {

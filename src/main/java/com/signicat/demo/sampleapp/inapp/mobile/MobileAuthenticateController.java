@@ -1,26 +1,30 @@
-package com.signicat.demo.sampleapp.inapp.mobile.controllers;
+package com.signicat.demo.sampleapp.inapp.mobile;
 
-import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationData;
-import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
-import com.signicat.demo.sampleapp.inapp.common.beans.SuccessResponse;
-import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
-import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
+import com.signicat.demo.sampleapp.inapp.common.beans.AuthenticationData;
+import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.SuccessResponse;
+import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 
-@RestController("InAppAuthenticateController")
+@RestController("MobileAuthenticateController")
 @RequestMapping("/mobile/authenticate")
 @EnableAutoConfiguration
-public class InAppAuthenticateController {
+public class MobileAuthenticateController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InAppAuthenticateController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MobileAuthenticateController.class);
 
     @Autowired
     protected OIDCProperties oidcProperties;
@@ -31,14 +35,14 @@ public class InAppAuthenticateController {
     @GetMapping("/start")
     public @ResponseBody
     BaseResponse startAuthentication(
-                    @RequestParam(value = "externalRef", required = true) final String extRef,
-                    @RequestParam(value = "deviceId", required = true) final String devId,
-                    final HttpServletRequest request, final HttpServletResponse response) {
+                    @RequestParam(value = "externalRef") final String extRef,
+                    @RequestParam(value = "deviceId") final String devId,
+                    final HttpServletRequest request) {
         LOG.debug("/start message received");
 
         final AuthenticationData authenticationData = prepareAuthenticationData(extRef, devId);
         final String authorizeUrl = OIDCUtils.getAuthorizeUri(authenticationData);
-        LOG.info("AUTHORIZE URL:" + authorizeUrl);
+        LOG.info("AUTHORIZE URL: {}", authorizeUrl);
 
         // setting state in the session
         request.getSession().setAttribute(OIDCUtils.ORIG_STATE, authenticationData.getState());
@@ -54,5 +58,4 @@ public class InAppAuthenticateController {
                 oidcProperties.getRedirectUri(),
                 oidcProperties.getAcrValues() + oidcProperties.getAuthMethod(), state, extRef, devId);
     }
-
 }

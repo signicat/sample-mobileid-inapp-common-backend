@@ -1,6 +1,5 @@
-package com.signicat.demo.sampleapp.inapp.web.exception;
+package com.signicat.demo.sampleapp.inapp.common.exception;
 
-import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

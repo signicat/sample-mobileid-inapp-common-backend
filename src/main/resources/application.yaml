@@ -39,8 +39,10 @@ oidc:
 # CONFIGURABLE: Values for the different methods may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
   acrValues: "urn:signicat:oidc:method:"
   regMethod: "mobileid-inapp-reg"
+  reregMethod: "mobileid-inapp-mobile-rereg"
   authMethod: "mobileid-inapp-auth"
   consentSignMethod: "mobileid-inapp-consent-sign"
+  consentSignMethodJwt: "mobileid-inapp-jwt-consent-sign"
 # CONFIGURABLE: cred64 may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
 # Note! The cred64 value is derived from "clientID:clientSecret" and is base64-encoded.
   cred64: "cHJlcHJvZC5tb2JpbGVpZC1zYW1wbGUuc2FtcGxlYXBwOm1xWi1fNzUtZjJ3TnNpUVRPTmI3T240YUFaN3pjMjE4bXJSVmsxb3VmYTg="
@@ -54,9 +56,4 @@ ws:
 # CONFIGURABLE: apiKey may be modified to match the customer-specific setup. Contact Signicat for the applicable value.
 # Note! This value matches the webservice password for the service.
   apiKey: "Bond007"
-
-# CURRENTLY NOT RELEVANT
-microservice:
-  baseUrl: "<BASE_URL>"
-  contextPath: "<CONTEXT_PATH>/"
 

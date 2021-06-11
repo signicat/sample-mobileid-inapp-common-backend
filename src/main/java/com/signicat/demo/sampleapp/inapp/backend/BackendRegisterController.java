@@ -1,10 +1,9 @@
-package com.signicat.demo.sampleapp.inapp.web.controllers;
+package com.signicat.demo.sampleapp.inapp.backend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.signicat.demo.sampleapp.inapp.common.beans.*;
 import org.apache.http.HttpHeaders;
@@ -34,12 +33,12 @@ import com.signicat.generated.scid.CreateArtifactResponse;
 // ==========================================
 // Web initiated - using OIDC interface
 // ==========================================
-@RestController("WebRegisterController")
-@RequestMapping("/web/register")
+@RestController("BackendRegisterController")
+@RequestMapping("/backend/register")
 @EnableAutoConfiguration
-public class WebRegisterController {
+public class BackendRegisterController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WebRegisterController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BackendRegisterController.class);
 
     @Autowired
     private OIDCProperties      oidcProperties;
@@ -65,7 +64,8 @@ public class WebRegisterController {
     private final HashMap<String, String[]> userDataMap = new HashMap<>();
 
     @GetMapping("/init")
-    public InitResponse index(final HttpServletRequest request, final HttpServletResponse response) {
+    public InitResponse init() {
+        LOG.info("PATH: /init");
         final String extRef = sessionData.getExtRef();
         final String devName = sessionData.getDevName();
         if (extRef == null) {
@@ -80,13 +80,15 @@ public class WebRegisterController {
 
     @GetMapping("/info")
     public InitResponse info(
-        @RequestParam(value = "activationCode", required = true) final String activationCode) {
+        @RequestParam(value = "activationCode") final String activationCode) {
+        LOG.info("PATH: /info");
         // Since this endpoint is called by the mobile app at the end of the registration flow, there is a new session
         // object lacking the externalRef and deviceName. We use the activation code as the shared secret for the lookup.
 
         // NOTE: In a real world scenario, the mobile app would probably do a lockup against a database
         // passing the MobileID registrationId instead to get hold of externalRef and device name. In this demo, we
         // don't have a database.
+
         final String[] userData = this.userDataMap.get(activationCode);
         if (userData != null) {
             this.userDataMap.remove(activationCode);
@@ -97,10 +99,10 @@ public class WebRegisterController {
 
     @GetMapping("/start")
     public BaseResponse startRegistration(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            @RequestParam(value = "deviceName", required = true) final String devName,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: /start ('Register' button clicked)");
+            @RequestParam(value = "externalRef") final String extRef,
+            @RequestParam(value = "deviceName") final String devName,
+            final HttpServletRequest request) {
+        LOG.info("PATH: /start");
 
         if (ControllersUtil.activationCodeIsNotErrorMessageAndDeviceAlreadyActivated(
                 sessionData.getActivationCode(), scidWsClient, extRef, devName)) {
@@ -110,7 +112,7 @@ public class WebRegisterController {
 
         final RegistrationData serverData = prepareRegistrationData(extRef, devName);
         final String authorizeUrl = OIDCUtils.getAuthorizeUri(serverData);
-        LOG.info("AUTHORIZE URL:" + authorizeUrl);
+        LOG.info("AUTHORIZE URL: {}", authorizeUrl);
 
         final RegistrationResponse regResponse = startAuthorizeFlow(authorizeUrl);
         if (regResponse.getError() != null) {
@@ -128,19 +130,19 @@ public class WebRegisterController {
         final String stateKey = stateCache.storeToStateCache(serverData.getState());
         sessionData.setStateKey(stateKey);
 
-        LOG.info("REGISTRATION RESPONSE:" + regResponse.toString());
-        LOG.info("STATE KEY:" + stateKey);
+        LOG.info("REGISTRATION RESPONSE: {}", regResponse);
+        LOG.info("STATE KEY: {}", stateKey);
         return new SuccessResponse(regResponse.getActivationCode());
     }
 
     @GetMapping("/checkStatus")
-    public String checkStatus(final HttpServletRequest request, final HttpServletResponse response) {
+    public String checkStatus() {
         LOG.info("PATH: /checkStatus");
         return WebAppUtils.checkStatus(sessionData.getHttpClient(), sessionData.getRegResponse().getStatusUrl());
     }
 
     @GetMapping("/doComplete")
-    public BaseResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) {
+    public BaseResponse doComplete() {
         LOG.info("PATH: /doComplete");
         return WebAppUtils.doComplete(sessionData.getHttpClient(), sessionData.getRegResponse().getCompleteUrl(),
                 sessionData.getStateKey());
@@ -156,7 +158,7 @@ public class WebRegisterController {
         LOG.info("Generate Artifact...");
         final String artifact = createArtifact(extRef);
 
-        LOG.info("Artifact created..."+artifact);
+        LOG.info("Artifact created... {}", artifact);
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + oidcProperties.getAcrValues() + oidcProperties.getRegMethod());
 
         return new RegistrationData(oidcProperties.getOidcBase() + WebAppUtils.AUTHORIZE_RESPONSE_TYPE_CODE, oidcProperties.getClientId(),

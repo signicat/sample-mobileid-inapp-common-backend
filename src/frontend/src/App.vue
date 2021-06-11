@@ -147,6 +147,9 @@ html body {
     color:#60768a;
     font-size: 16px;
   }
+  li {
+    padding-bottom: 10px;
+  }
   .content-wrapper {
     max-width: 900px;
     p {

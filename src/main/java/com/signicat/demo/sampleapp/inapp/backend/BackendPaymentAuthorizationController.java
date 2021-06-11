@@ -1,4 +1,4 @@
-package com.signicat.demo.sampleapp.inapp.web.controllers;
+package com.signicat.demo.sampleapp.inapp.backend;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -6,7 +6,6 @@ import java.util.Base64;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Strings;
 import org.apache.http.HttpHeaders;
@@ -48,12 +47,12 @@ import net.minidev.json.JSONObject;
 // ==========================================
 // Web initiated - using OIDC interface
 // ==========================================
-@RestController("WebPaymentAuthorizationController")
-@RequestMapping("/web/authorizepayment")
+@RestController("BackendPaymentAuthorizationController")
+@RequestMapping("/backend/authorizepayment")
 @EnableAutoConfiguration
-public class WebPaymentAuthorizationController {
+public class BackendPaymentAuthorizationController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WebPaymentAuthorizationController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BackendPaymentAuthorizationController.class);
 
     @Autowired
     private OIDCProperties      oidcProperties;
@@ -74,7 +73,8 @@ public class WebPaymentAuthorizationController {
     private StateCache          stateCache;
 
     @GetMapping("/init")
-    public String index(final HttpServletRequest request, final HttpServletResponse response) {
+    public String init() {
+        LOG.info("PATH: /init");
         final String extRef = sessionData.getExtRef();
         if (extRef == null) {
             sessionData.setExtRef(defaultExternalRef);
@@ -84,9 +84,8 @@ public class WebPaymentAuthorizationController {
 
     @GetMapping("/getDevices")
     public List<String> getDevicesbuttonClicked(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: getDevices  ('Get devices' button clicked)");
+            @RequestParam(value = "externalRef") final String extRef) {
+        LOG.info("PATH: /getDevices");
 
         final Devices fetchedDevices = ControllersUtil.getAllDevices(scidWsClient,extRef);
         final List<String> deviceNames = ControllersUtil.getListOfDeviceNames(fetchedDevices);
@@ -94,18 +93,18 @@ public class WebPaymentAuthorizationController {
         sessionData.setExtRef(extRef);
         sessionData.setFetchedDevices(fetchedDevices);
 
-        LOG.info("FETCHED DEVICES:" + deviceNames.toString());
+        LOG.info("FETCHED DEVICES: {}", deviceNames);
         return deviceNames;
     }
 
     @GetMapping("/start")
     public void startAuthentication(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            @RequestParam(value = "deviceName", required = true) final String devName,
+            @RequestParam(value = "externalRef") final String extRef,
+            @RequestParam(value = "deviceName") final String devName,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             @RequestParam(value = "pushPayload", required = false) final String pushPayload,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: /start ('Authenticate' button clicked)");
+            final HttpServletRequest request) {
+        LOG.info("PATH: /start");
 
         final String deviceId = ControllersUtil.getDeviceId(sessionData.getFetchedDevices(), devName);
         String preContextTitleB64decoded = "";
@@ -114,11 +113,11 @@ public class WebPaymentAuthorizationController {
         }
 
         final String state = OIDCUtils.createState(OIDCUtils.WEB_CHANNEL + getScrValues());
-        LOG.info("InitialState:" + state);
+        LOG.info("InitialState: {}", state);
         final String reqData = prepareEncryptedAuthenticationData(extRef, deviceId, preContextTitleB64decoded, pushPayload, state);
-        LOG.info("Encrypted requewst:" + reqData);
+        LOG.info("Encrypted request: {}", reqData);
         final String authorizeUrl = OIDCUtils.getEncryptedAuthorizeUri(oidcProperties.getOidcBase(), reqData);
-        LOG.info("AUTHORIZE URL:" + authorizeUrl);
+        LOG.info("AUTHORIZE URL: {}", authorizeUrl);
 
         final AuthenticationResponse authResponse = startAuthorizeFlow(authorizeUrl);
         if (authResponse.getError() != null) {
@@ -130,18 +129,18 @@ public class WebPaymentAuthorizationController {
         final String stateKey = stateCache.storeToStateCache(state);
         sessionData.setStateKey(stateKey);
 
-        LOG.info("AUTENTICATION RESPONSE:" + authResponse.toString());
-        LOG.info("STATE KEY:" + stateKey);
+        LOG.info("AUTHENTICATION RESPONSE: {}", authResponse);
+        LOG.info("STATE KEY: {}", stateKey);
     }
 
     @GetMapping("/checkStatus")
-    public String checkStatus(final HttpServletRequest request, final HttpServletResponse response) {
+    public String checkStatus() {
         LOG.info("PATH: /checkStatus");
         return WebAppUtils.checkStatus(sessionData.getHttpClient(), sessionData.getAuthResponse().getStatusUrl());
     }
 
     @GetMapping("/doComplete")
-    public BaseResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) {
+    public BaseResponse doComplete() {
         LOG.info("PATH: /doComplete");
         return WebAppUtils.doComplete(sessionData.getHttpClient(), sessionData.getAuthResponse().getCompleteUrl(),
                 sessionData.getStateKey());
@@ -183,27 +182,27 @@ public class WebPaymentAuthorizationController {
 
         final String acr_values = getScrValues();
 
-        final List<String> login_hint = new ArrayList<>();
-        login_hint.add("externalRef-"+extRef);
-        login_hint.add("deviceId-"+devId);
+        final List<String> loginHint = new ArrayList<>();
+        loginHint.add("externalRef-"+extRef);
+        loginHint.add("deviceId-"+devId);
         if (preContextTitle != null) {
-            login_hint.add("preContextTitle-"+preContextTitle);
+            loginHint.add("preContextTitle-"+preContextTitle);
         }
         if (!Strings.isNullOrEmpty(pushPayload)) {
-            login_hint.add("pushPayload-" + pushPayload);
+            loginHint.add("pushPayload-" + pushPayload);
         }
 
-        final JSONObject payload_json = new JSONObject();
-        payload_json.put("login_hint", login_hint);
-        payload_json.put("ui_locales", "en");
-        payload_json.put("scope", "openid mobileid profile");
-        payload_json.put("acr_values", acr_values);
-        payload_json.put("response_type", "code");
-        payload_json.put("redirect_uri", oidcProperties.getRedirectUri());
-        payload_json.put("state", initialState);
-        payload_json.put("client_id", oidcProperties.getClientId());
+        final JSONObject payloadJson = new JSONObject();
+        payloadJson.put("login_hint", loginHint);
+        payloadJson.put("ui_locales", "en");
+        payloadJson.put("scope", "openid mobileid profile");
+        payloadJson.put("acr_values", acr_values);
+        payloadJson.put("response_type", "code");
+        payloadJson.put("redirect_uri", oidcProperties.getRedirectUri());
+        payloadJson.put("state", initialState);
+        payloadJson.put("client_id", oidcProperties.getClientId());
 
-        return payload_json;
+        return payloadJson;
     }
 
     private RSAKey getSignicatJWK() throws ParseException {
@@ -217,7 +216,6 @@ public class WebPaymentAuthorizationController {
                 return RSAKey.parse(k);
             }
         }
-
         throw new ApplicationException("No valid JWK found...");
     }
 

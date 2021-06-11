@@ -65,7 +65,7 @@ PS : Please go to 'src/frontend' in this project directory
 
 ### Install npm
 ```
-npm install
+npm ci
 ```
 
 ### Compile and hot-reload for development

@@ -1,4 +1,4 @@
-package com.signicat.demo.sampleapp.inapp.web.controllers;
+package com.signicat.demo.sampleapp.inapp.backend;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -6,9 +6,7 @@ import java.util.Base64;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.base.Strings;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
@@ -34,14 +33,15 @@ import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
 import com.signicat.demo.sampleapp.inapp.common.StateCache;
 import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.InitSignResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SignResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.SignStatusResponse;
 import com.signicat.demo.sampleapp.inapp.common.beans.consentsign.Jwks;
 import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
-import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.generated.scid.Devices;
 
 import net.minidev.json.JSONObject;
@@ -49,12 +49,12 @@ import net.minidev.json.JSONObject;
 // ==========================================
 // Web initiated - using OIDC interface
 // ==========================================
-@RestController("WebConsentSignController")
-@RequestMapping("/web/consentsign")
+@RestController("BackendConsentSignController")
+@RequestMapping("/backend/consentsign")
 @EnableAutoConfiguration
-public class WebConsentSignController {
+public class BackendConsentSignController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WebConsentSignController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BackendConsentSignController.class);
 
     @Autowired
     private OIDCProperties oidcProperties;
@@ -75,19 +75,19 @@ public class WebConsentSignController {
     private StateCache stateCache;
 
     @GetMapping("/init")
-    public String index(final HttpServletRequest request, final HttpServletResponse response) {
+    public InitSignResponse init() {
+        LOG.info("PATH: /init");
         final String extRef = sessionData.getExtRef();
         if (extRef == null) {
             sessionData.setExtRef(defaultExternalRef);
         }
-        return sessionData.getExtRef();
+        return new InitSignResponse(sessionData.getExtRef(), null, !Strings.isNullOrEmpty(oidcProperties.getConsentSignMethodJwt()));
     }
 
     @GetMapping("/getDevices")
     public List<String> getDevicesbuttonClicked(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: getDevices  ('Get devices' button clicked)");
+            @RequestParam(value = "externalRef") final String extRef) {
+        LOG.info("PATH: /getDevices");
 
         final Devices fetchedDevices = ControllersUtil.getAllDevices(scidWsClient, extRef);
         final List<String> deviceNames = ControllersUtil.getListOfDeviceNames(fetchedDevices);
@@ -95,43 +95,47 @@ public class WebConsentSignController {
         sessionData.setExtRef(extRef);
         sessionData.setFetchedDevices(fetchedDevices);
 
-        LOG.info("FETCHED DEVICES:" + deviceNames.toString());
+        LOG.info("FETCHED DEVICES: {}", deviceNames);
         return deviceNames;
     }
 
     @GetMapping("/start")
     public void startAuthentication(
-            @RequestParam(value = "externalRef", required = true) final String extRef,
-            @RequestParam(value = "deviceName", required = true) final String devName,
+            @RequestParam(value = "externalRef") final String extRef,
+            @RequestParam(value = "deviceName") final String devName,
+            @RequestParam(value = "sdoFormat") final String sdoFormat,
             @RequestParam(value = "preContextTitle", required = false) final String preContextTitle,
             @RequestParam(value = "preContextContent", required = false) final String preContextContent,
             @RequestParam(value = "pushPayload", required = false) final String pushPayload,
-            final HttpServletRequest request, final HttpServletResponse response) {
-        LOG.info("PATH: /start ('Sign' button clicked)");
+            final HttpServletRequest request) {
+        LOG.info("PATH: /start (with: {})", sdoFormat);
 
         final String deviceId = ControllersUtil.getDeviceId(sessionData.getFetchedDevices(), devName);
         String preContextTitleB64decoded = "";
         if(preContextTitle != null && !preContextTitle.isEmpty()) {
             preContextTitleB64decoded = new String(Base64.getDecoder().decode(preContextTitle));
         }
+        if (preContextTitleB64decoded.isEmpty()) {
+            throw new ApplicationException("Consent text cannot be empty");
+        }
 
         try {
-            final String initialState = OIDCUtils.createState(OIDCUtils.SIGN_CHANNEL + getScrValues());
-            LOG.info("Sign initialState:" + initialState);
+            final String initialState = OIDCUtils.createState(OIDCUtils.SIGN_CHANNEL + getScrValues("default"));
+            LOG.info("Sign initialState: {}", initialState);
 
-            final String reqData = prepareSignData(extRef, deviceId, preContextTitleB64decoded, preContextContent, pushPayload, initialState);
-            LOG.info("reqData:" + reqData);
+            final String reqData = prepareSignData(extRef, deviceId, sdoFormat, preContextTitleB64decoded, preContextContent, pushPayload, initialState);
+            LOG.info("reqData: {}", reqData);
 
             // make signUrl
             final StringBuilder sb = new StringBuilder();
             sb.append(oidcProperties.getOidcBase());
             sb.append("authorize?request=").append(reqData);
             final String signUrl = sb.toString();
-            LOG.info("Sign URL:" + signUrl);
+            LOG.info("Sign URL: {}", signUrl);
 
             // send sign request
             final SignResponse signResponse = startSignFlow(signUrl);
-            LOG.info("Sign RESPONSE:" + signResponse.toString());
+            LOG.info("Sign RESPONSE: {}", signResponse);
             if (signResponse.getError() != null) {
                 throw new ApplicationException(signResponse.getError().getCode() + "-" + signResponse.getError().getMessage());
             }
@@ -149,14 +153,14 @@ public class WebConsentSignController {
     }
 
     @GetMapping("/checkStatus")
-    public String checkStatus(final HttpServletRequest request, final HttpServletResponse response) {
+    public String checkStatus() {
         LOG.info("PATH: /checkStatus");
         final SignStatusResponse st = WebAppUtils.checkSignStatus(sessionData.getHttpClient(), sessionData.getSignResponse().getStatusUrl());
         return st.getStatus();
     }
 
     @GetMapping("/doComplete")
-    public BaseResponse doComplete(final HttpServletRequest request, final HttpServletResponse response) {
+    public BaseResponse doComplete() {
         LOG.info("PATH: /doComplete");
         return WebAppUtils.doComplete(sessionData.getHttpClient(), sessionData.getSignResponse().getCompleteUrl(),
                 sessionData.getStateKey());
@@ -168,7 +172,7 @@ public class WebConsentSignController {
                         HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString()));
     }
 
-    private String prepareSignData(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String pushPayload, final String initialState) throws JOSEException, ParseException {
+    private String prepareSignData(final String extRef, final String devId, final String sdoFormat, final String preContextTitle, final String preContextContent, final String pushPayload, final String initialState) throws JOSEException, ParseException {
         final RSAKey encyptionKey = getSignicatJWK();
 
         final JWEAlgorithm alg = JWEAlgorithm.parse(encyptionKey.getAlgorithm().getName());
@@ -177,7 +181,7 @@ public class WebConsentSignController {
         final JWEHeader header = new JWEHeader.Builder(alg, EncryptionMethod.A256CBC_HS512).keyID(encyptionKey.getKeyID()).build();
 
         // Create a JWEObject with header and JSON payload
-        final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, preContextTitle, preContextContent, pushPayload, initialState)));
+        final JWEObject jweObject = new JWEObject(header, new Payload(getCreatePayload(extRef, devId, sdoFormat, preContextTitle, preContextContent, pushPayload, initialState)));
 
         // Create an encrypter with the specified public RSA key
         final RSAEncrypter encrypter = new RSAEncrypter(encyptionKey.toPublicJWK());
@@ -189,9 +193,9 @@ public class WebConsentSignController {
         return jweObject.serialize();
     }
 
-    private JSONObject getCreatePayload(final String extRef, final String devId, final String preContextTitle, final String preContextContent, final String pushPayload, final String initialState){
+    private JSONObject getCreatePayload(final String extRef, final String devId,  final String sdoFormat, final String preContextTitle, final String preContextContent, final String pushPayload, final String initialState){
 
-        final String acr_values = getScrValues();
+        final String acr_values = getScrValues(sdoFormat);
 
         final List<String> login_hint = new ArrayList<>();
         login_hint.add("externalRef-"+extRef);
@@ -217,8 +221,11 @@ public class WebConsentSignController {
         return payload_json;
     }
 
-    private String getScrValues() {
-        return oidcProperties.getAcrValues() + oidcProperties.getConsentSignMethod();
+    private String getScrValues(final String sdoFormat) {
+        final String method = (sdoFormat.equalsIgnoreCase("jwt") && oidcProperties.getConsentSignMethodJwt() != null)
+                ? oidcProperties.getConsentSignMethodJwt()
+                : oidcProperties.getConsentSignMethod();
+        return oidcProperties.getAcrValues() + method;
     }
 
     private RSAKey getSignicatJWK() throws ParseException {
@@ -232,7 +239,6 @@ public class WebConsentSignController {
                 return RSAKey.parse(k);
             }
         }
-
         throw new ApplicationException("No valid JWK found...");
     }
 }
