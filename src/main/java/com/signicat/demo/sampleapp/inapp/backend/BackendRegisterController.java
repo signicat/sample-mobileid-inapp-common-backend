@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.signicat.demo.sampleapp.inapp.common.beans.*;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,19 +20,24 @@ import com.google.common.collect.ImmutableMap;
 import com.signicat.demo.sampleapp.inapp.common.OIDCProperties;
 import com.signicat.demo.sampleapp.inapp.common.SessionData;
 import com.signicat.demo.sampleapp.inapp.common.StateCache;
+import com.signicat.demo.sampleapp.inapp.common.beans.BaseResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.ErrorResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.InitResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationData;
+import com.signicat.demo.sampleapp.inapp.common.beans.RegistrationResponse;
+import com.signicat.demo.sampleapp.inapp.common.beans.SuccessResponse;
 import com.signicat.demo.sampleapp.inapp.common.exception.ApplicationException;
+import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.demo.sampleapp.inapp.common.utils.OIDCUtils;
 import com.signicat.demo.sampleapp.inapp.common.utils.WebAppUtils;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.ScidWsClient;
 import com.signicat.demo.sampleapp.inapp.common.wsclient.beans.ScidRequest;
-import com.signicat.demo.sampleapp.inapp.common.utils.ControllersUtil;
 import com.signicat.generated.scid.CreateArtifactResponse;
 
 // ==========================================
 // Web initiated - using OIDC interface
 // ==========================================
 @RestController("BackendRegisterController")
-@RequestMapping("/backend/register")
 @EnableAutoConfiguration
 public class BackendRegisterController {
 
@@ -63,7 +66,7 @@ public class BackendRegisterController {
 
     private final HashMap<String, String[]> userDataMap = new HashMap<>();
 
-    @GetMapping("/init")
+    @RequestMapping("/backend/register/init")
     public InitResponse init() {
         LOG.info("PATH: /init");
         final String extRef = sessionData.getExtRef();
@@ -78,7 +81,7 @@ public class BackendRegisterController {
         return new InitResponse(sessionData.getExtRef(), sessionData.getDevName());
     }
 
-    @GetMapping("/info")
+    @RequestMapping("/web/register/info")
     public InitResponse info(
         @RequestParam(value = "activationCode") final String activationCode) {
         LOG.info("PATH: /info");
@@ -97,7 +100,7 @@ public class BackendRegisterController {
         return new InitResponse(null, null);
     }
 
-    @GetMapping("/start")
+    @RequestMapping("/backend/register/start")
     public BaseResponse startRegistration(
             @RequestParam(value = "externalRef") final String extRef,
             @RequestParam(value = "deviceName") final String devName,
@@ -135,13 +138,13 @@ public class BackendRegisterController {
         return new SuccessResponse(regResponse.getActivationCode());
     }
 
-    @GetMapping("/checkStatus")
+    @RequestMapping("/backend/register/checkStatus")
     public String checkStatus() {
         LOG.info("PATH: /checkStatus");
         return WebAppUtils.checkStatus(sessionData.getHttpClient(), sessionData.getRegResponse().getStatusUrl());
     }
 
-    @GetMapping("/doComplete")
+    @RequestMapping("/backend/register/doComplete")
     public BaseResponse doComplete() {
         LOG.info("PATH: /doComplete");
         return WebAppUtils.doComplete(sessionData.getHttpClient(), sessionData.getRegResponse().getCompleteUrl(),
